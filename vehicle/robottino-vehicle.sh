@@ -13,7 +13,7 @@ DIR=(25 24)
 # power pins
 POW=(13 12)
 GPIO="gpio -g"
-ECHO=:
+ECHO=echo
 
 if [ -n "$DRY_RUN" ]; then 
   GPIO="echo $GPIO" 
@@ -131,7 +131,7 @@ forward_right() {
 
 # optional parameter set speed 0-10
 backward_left() {
-    ÂECHO --------- BACKWARD-LEFT ---------                    
+    $ECHO --------- BACKWARD-LEFT ---------                    
     for PIN in ${DIR[*]}; do
       $GPIO write $PIN 0
     done
@@ -239,7 +239,7 @@ get_command() {
   done
 }
 
-./robottino-video.sh &
+bash ./robottino-video &
 
 configure_pins
 
