@@ -2,6 +2,6 @@
 
 source envsetup
 
-./robottino-video &
+bash ./robottino-video &
 stty -icanon && nc $TARGET $PORT
 
