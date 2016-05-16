@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Wifi
+export TARGET=192.168.1.125
+# ethernet
+#export TARGET=192.168.1.124
+export PORT=1234
+export PORT_VID=1235
+

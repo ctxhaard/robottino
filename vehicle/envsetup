@@ -1,0 +1,1 @@
+export WIRINGPI_GPIOMEM=1
