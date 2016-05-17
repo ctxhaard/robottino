@@ -1,0 +1,11 @@
+GPIO PINS
+
+RIGHT MOTOR
+22 enable
+24 direction (high:forward | low:backward)
+12 PWM
+
+LEFT MOTOR
+23 enable
+25 direction (high:forward | low:backward)
+13 PWM

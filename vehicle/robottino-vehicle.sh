@@ -2,12 +2,10 @@
 
 #set -e
 
+source envsetup
+
 #DRY_RUN=1
 
-# tell gpio to use gpiomem
-WIRINGPI_GPIOMEM=1
-
-PORT=1234
 # enable pins
 EN=(23 22)
 # direction pins
@@ -200,6 +198,20 @@ echo AUTOMATIC SEQUENCE STARTED
   echo AUTOMATIC SEQUENCE TERMINATED
 }
 
+start_video() {
+  $ECHO --------- START-VIDEO ---------
+  ./robottino-video &
+  VIDEO_PID=$!
+}
+
+stop_video() {
+  $ECHO --------- STOP-VIDEO ---------
+  if [ -n "$VIDEO_PID" ]; then
+    kill $VIDEO_PID
+    unset VIDEO_PID
+  fi
+}
+
 get_command() {
   while true; do
     read -t 0.5 -n 1 CMD
@@ -208,15 +220,17 @@ get_command() {
        CMD=5; 
     fi
     case $CMD in
-      6 )  rotate_clockwise;;
-      4 )  rotate_counter_clockwise;;
-      8 )  forward;;
-      2 )  backward;;
-      5 )  stop;;
-      9 )  forward_right;;
-      7 )  forward_left;;
-      1 )  backward_left;;
-      3 )  backward_right;;
+      "6" )  rotate_clockwise;;
+      "4" )  rotate_counter_clockwise;;
+      "8" )  forward;;
+      "2" )  backward;;
+      "5" )  stop;;
+      "9" )  forward_right;;
+      "7" )  forward_left;;
+      "1" )  backward_left;;
+      "3" )  backward_right;;
+      "/" )  start_video;;
+      "*" )  stop_video;;
       * )  
         echo "cmd:??? $CMD"
         break
