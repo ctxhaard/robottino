@@ -1,23 +1,29 @@
 #!/bin/bash
 
-#set -e
+set -e
 
 source envsetup
 
-#DRY_RUN=1
+export WIRINGPI_GPIOMEM=1
+
+#export DRY_RUN=1
+export VERBOSE=1
 
 # enable pins
-EN=(23 22)
+export EN=(23 22)
 # direction pins
-DIR=(25 24)
+export DIR=(25 24)
 # power pins
-POW=(13 12)
-GPIO="gpio -g"
-ECHO=echo
+export POW=(13 12)
+export GPIO="gpio -g"
+export ECHO=":"
 
 if [ -n "$DRY_RUN" ]; then 
   GPIO="echo $GPIO" 
-  ECHO=echo
+fi
+
+if [ -n "$VERBOSE" ]; then
+  ECHO="echo"  
 fi
 
 configure_pins() {
@@ -46,8 +52,8 @@ stop() {
 }
 
 # optional parameter set speed 0-10
-forward() {
-  $ECHO --------- FORWARD ---------
+forward() (
+    $ECHO --------- FORWARD ---------
     for PIN in ${DIR[*]}; do
       $GPIO write $PIN 1
     done
@@ -58,8 +64,9 @@ forward() {
     fi
     for PIN in ${POW[*]}; do
       $GPIO pwm $PIN $VAL
+      echo "$GPIO pwm $PIN $VAL"
     done
-}
+)
 
 # optional parameter set speed 0-10
 backward() {
@@ -213,12 +220,13 @@ stop_video() {
 }
 
 get_command() {
+  echo 1
   while true; do
-    read -t 0.5 -n 1 CMD
-    $ECHO $CMD
+    read -t 2 -n 1 CMD || true
     if [ -z "$CMD" ]; then
        CMD=5; 
     fi
+    $ECHO $CMD
     case $CMD in
       "6" )  rotate_clockwise;;
       "4" )  rotate_counter_clockwise;;
@@ -239,13 +247,13 @@ get_command() {
   done
 }
 
-bash ./robottino-video &
+#bash ./robottino-video &
 
 configure_pins
 
 while true; do
   echo listening on port $PORT
-  nc -l $PORT | get_command
+  nc -k -l $PORT | get_command
   echo terminated
 done
 
