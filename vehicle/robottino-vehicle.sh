@@ -4,8 +4,6 @@ set -e
 
 source envsetup
 
-export WIRINGPI_GPIOMEM=1
-
 #export DRY_RUN=1
 export VERBOSE=1
 
@@ -220,7 +218,6 @@ stop_video() {
 }
 
 get_command() {
-  echo 1
   while true; do
     read -t 2 -n 1 CMD || true
     if [ -z "$CMD" ]; then
