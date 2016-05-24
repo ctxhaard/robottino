@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export TARGET=192.168.1.125
+export TARGET=192.168.1.229
 export PORT=1234
 export PORT_VID=1235
 
