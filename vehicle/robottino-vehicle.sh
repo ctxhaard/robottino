@@ -15,6 +15,8 @@ export DIR=(25 24)
 export POW=(13 12)
 export GPIO="gpio -g"
 export ECHO=":"
+export PWM_DEF="550"
+export CORNER_RATE="9 / 10" 
 
 if [ -n "$DRY_RUN" ]; then 
   GPIO="echo $GPIO" 
@@ -56,13 +58,12 @@ forward() (
       $GPIO write $PIN 1
     done
     
-    VAL=1023
+    VAL="$PWM_DEF"
     if [ -n "$1" ]; then
       VAL=$(($1 * 1023 / 10))
     fi
     for PIN in ${POW[*]}; do
       $GPIO pwm $PIN $VAL
-      echo "$GPIO pwm $PIN $VAL"
     done
 )
 
@@ -73,7 +74,7 @@ backward() {
       $GPIO write $PIN 0
     done
     
-    VAL=1023
+    VAL="$PWM_DEF"
     if [ -n "$1" ]; then
       VAL=$(($1 * 1023 / 10))
     fi
@@ -88,7 +89,7 @@ rotate_counter_clockwise() {
     $GPIO write ${DIR[1]} 1
     
     for PIN in ${POW[*]}; do
-      $GPIO pwm $PIN 1023
+      $GPIO pwm $PIN "$PWM_DEF"
     done
 }
 
@@ -98,7 +99,7 @@ rotate_clockwise() {
     $GPIO write ${DIR[1]} 0
     
     for PIN in ${POW[*]}; do
-      $GPIO pwm $PIN 1023
+      $GPIO pwm $PIN "$PWM_DEF"
     done
 }
 
@@ -109,12 +110,12 @@ forward_left() {
       $GPIO write $PIN 1
     done
 
-    VAL=1023
+    VAL="$PWM_DEF"
     if [ -n "$1" ]; then
       VAL=$(($1 * 1023 / 10))
     fi
-
-    $GPIO pwm ${POW[0]} $(( $VAL / 2 ))
+    echo "TEST: $(( $VAL * $CORNER_RATE ))"
+    $GPIO pwm ${POW[0]} $(( $VAL * $CORNER_RATE ))
     $GPIO pwm ${POW[1]} $VAL
 }
 
@@ -125,13 +126,13 @@ forward_right() {
       $GPIO write $PIN 1
     done
 
-    VAL=1023
+    VAL="$PWM_DEF"
     if [ -n "$1" ]; then
       VAL=$(($1 * 1023 / 10))
     fi
 
     $GPIO pwm ${POW[0]} $VAL
-    $GPIO pwm ${POW[1]} $(( $VAL / 2 ))
+    $GPIO pwm ${POW[1]} $(( $VAL * $CORNER_RATE ))
 }
 
 # optional parameter set speed 0-10
@@ -141,12 +142,12 @@ backward_left() {
       $GPIO write $PIN 0
     done
 
-    VAL=1023
+    VAL="$PWM_DEF"
     if [ -n "$1" ]; then
       VAL=$(($1 * 1023 / 10))
     fi
 
-    $GPIO pwm ${POW[0]} $(( $VAL / 2 ))
+    $GPIO pwm ${POW[0]} $(( $VAL * $CORNER_RATE ))
     $GPIO pwm ${POW[1]} $VAL
 }
 
@@ -157,13 +158,13 @@ backward_right() {
       $GPIO write $PIN 0
     done
 
-    VAL=1023
+    VAL="$PWM_DEF"
     if [ -n "$1" ]; then
       VAL=$(($1 * 1023 / 10))
     fi
 
     $GPIO pwm ${POW[0]} $VAL
-    $GPIO pwm ${POW[1]} $(( $VAL / 2 ))
+    $GPIO pwm ${POW[1]} $(( $VAL * $CORNER_RATE ))
 }
 
 sequence() {

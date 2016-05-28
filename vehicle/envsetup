@@ -1,7 +1,14 @@
 #!/bin/bash
 
 #export WIRINGPI_GPIOMEM=1
-export HOST=nslookup dell-E5550 | tail -2 | head -1 | awk '{print $2}'
+export HOST=$(nslookup dell-E5550 | tail -2 | head -1 | awk '{print $2}')
 export PORT=1234
 export PORT_VID=1235
+
+echo "HOST: $HOST"
+if [ -z "$WIRINGPI_GPIOMEM" ]; then
+    echo "NOT using GPIOMEM"
+else
+    echo "USING GPIOMEM"
+fi
 
