@@ -15,8 +15,11 @@ export DIR=(25 24)
 export POW=(13 12)
 export GPIO="gpio -g"
 export ECHO=":"
-export PWM_DEF="550"
-export CORNER_RATE="9 / 10" 
+export PWM_DEF_RO="550"
+
+export CORNER_RATIO_RO="0" 
+#export CORNER_RATIO_RO="9 / 10" 
+export CORNER_RATIO="$CORNER_RATIO_RO" 
 
 if [ -n "$DRY_RUN" ]; then 
   GPIO="echo $GPIO" 
@@ -25,6 +28,12 @@ fi
 if [ -n "$VERBOSE" ]; then
   ECHO="echo"  
 fi
+
+if [ -n "$1" ]; then
+    PWM_DEF_RO="$1"
+fi
+export PWM_DEF=$PWM_DEF_RO
+echo "pwm power set to: $PWM_DEF"
 
 configure_pins() {
   echo --------- CONFIGURING PINS ---------
@@ -114,8 +123,7 @@ forward_left() {
     if [ -n "$1" ]; then
       VAL=$(($1 * 1023 / 10))
     fi
-    echo "TEST: $(( $VAL * $CORNER_RATE ))"
-    $GPIO pwm ${POW[0]} $(( $VAL * $CORNER_RATE ))
+    $GPIO pwm ${POW[0]} $(( $VAL * $CORNER_RATIO ))
     $GPIO pwm ${POW[1]} $VAL
 }
 
@@ -130,9 +138,8 @@ forward_right() {
     if [ -n "$1" ]; then
       VAL=$(($1 * 1023 / 10))
     fi
-
     $GPIO pwm ${POW[0]} $VAL
-    $GPIO pwm ${POW[1]} $(( $VAL * $CORNER_RATE ))
+    $GPIO pwm ${POW[1]} $(( $VAL * $CORNER_RATIO ))
 }
 
 # optional parameter set speed 0-10
@@ -147,7 +154,7 @@ backward_left() {
       VAL=$(($1 * 1023 / 10))
     fi
 
-    $GPIO pwm ${POW[0]} $(( $VAL * $CORNER_RATE ))
+    $GPIO pwm ${POW[0]} $(( $VAL * $CORNER_RATIO ))
     $GPIO pwm ${POW[1]} $VAL
 }
 
@@ -164,7 +171,7 @@ backward_right() {
     fi
 
     $GPIO pwm ${POW[0]} $VAL
-    $GPIO pwm ${POW[1]} $(( $VAL * $CORNER_RATE ))
+    $GPIO pwm ${POW[1]} $(( $VAL * $CORNER_RATIO ))
 }
 
 sequence() {
@@ -218,6 +225,18 @@ stop_video() {
   fi
 }
 
+power_normal() {
+  $ECHO --------- POWER-NORMAL ---------
+  PWM_DEF=$PWM_DEF_RO
+  CORNER_RATIO=$CORNER_RATIO_RO
+}
+
+power_max() {
+  $ECHO ---------- POWER-MAX ----------
+  PWM_DEF=1023
+  CORNER_RATIO="1 / 2"
+}
+
 get_command() {
   while true; do
     read -t 2 -n 1 CMD || true
@@ -237,6 +256,8 @@ get_command() {
       "3" )  backward_right;;
       "/" )  start_video;;
       "*" )  stop_video;;
+      "+" )  power_max;;
+      "-" )  power_normal;;
       * )  
         echo "cmd:??? $CMD"
         break
