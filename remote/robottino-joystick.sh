@@ -3,5 +3,5 @@
 source envsetup
 
 #bash ./robottino-video.sh &
-stty -icanon && nc -u $TARGET $PORT
+./joystick | nc -u $TARGET $PORT
 
