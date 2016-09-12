@@ -154,21 +154,25 @@ int main() {
 			exit (-1);
 		} else if (0 == ret /* timeout */) {
 			struct timeval time;
-
+#ifdef DEBUG
 			fprintf(stderr,"timeout\n");
+#endif
 			cur_cmd = '5';
-			gettimeofday(&time,NULL);
-			putchar(cur_cmd);
-			last_cmd = cur_cmd;
-			last_time = time;
-			fflush(stdout);
+			
+			if (cur_cmd != last_cmd) {
+				gettimeofday(&time,NULL);
+				putchar(cur_cmd);
+				last_cmd = cur_cmd;
+				last_time = time;
+				fflush(stdout);
+			}
 		} else {
 			size_t count;
 
 			count = read(fd, &event, sizeof(struct input_event));
 
 			if (sizeof(struct input_event) ==  count) {
-#if 0
+#ifdef DEBUG
 				event_dump(&event);
 #endif
 				if (EV_REL == event.type) {
@@ -208,7 +212,7 @@ int main() {
 					struct timeval diff;
 					timersub(&event.time,&last_time,&diff);
 					if (cur_cmd != last_cmd || diff.tv_sec > 1) {
-#ifdef DEBUG
+#if 0
 						fprintf(stderr,"%c a: %li b: %li time diff s: %li\n",
 								cur_cmd,event.time.tv_sec,last_time.tv_sec,diff.tv_sec);
 #endif
@@ -219,6 +223,20 @@ int main() {
 					}
 
 
+				} else if (EV_KEY == event.type && 0 == event.value) {
+					char cmd = 0;
+					if (0x0110 == event.code) {
+						cmd = '+';
+					} else if (0x01 == event.code) {
+						cmd = '-';
+					}
+					if (cmd) {
+#ifdef DEBUG
+						fprintf(stderr,"%c\n",cmd);
+#endif
+						putchar(cmd);	
+						fflush(stdout);					
+					}
 				}
 			} else {
 #ifdef DEBUG
