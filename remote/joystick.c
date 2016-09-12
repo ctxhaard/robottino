@@ -2,10 +2,12 @@
 #include <linux/input.h>
 
 #include <sys/types.h>
+#include <sys/select.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 char *types[] = {
 	"EV_SYN",
@@ -122,7 +124,9 @@ int main() {
 	struct input_event event, 
 		rel_x, 
 		rel_y;
-	char last = '5';
+	char last_cmd = '5';
+	struct timeval last_time;		
+	timerclear(&last_time);
 	
 	fd =  open("/dev/input/event18",0);
 	
@@ -132,54 +136,95 @@ int main() {
 	}
 	
 	while (1) {
-		size_t count = read(fd, &event, sizeof(struct input_event));
-		if (sizeof(struct input_event) ==  count) {	
-#ifdef DEBUG
-			event_dump(&event);
-#endif
-			if (EV_REL == event.type) {
-				char cur;
-				switch ( event.code ) {
-				case REL_X:
-					memcpy(&rel_x,&event,sizeof(struct input_event));
-					break;
-				case REL_Y:
-					memcpy(&rel_y,&event,sizeof(struct input_event));
-					break;
-				default:
-					break;
-				}
-				if ( value_is_pos(&rel_x) && value_is_idle(&rel_y) ) {
-					cur = '6';
-				} else if ( value_is_pos(&rel_x) && value_is_pos(&rel_y) ) {
-					cur = '3';
-				} else if ( value_is_idle(&rel_x) && value_is_pos(&rel_y) ) {
-					cur = '2';
-				} else if ( value_is_neg(&rel_x) && value_is_pos(&rel_y) ) {
-					cur = '1';
-				} else if ( value_is_neg(&rel_x) && value_is_idle(&rel_y) ) {
-					cur = '4';
-				} else if ( value_is_neg(&rel_x) && value_is_neg(&rel_y) ) {
-					cur = '7';
-				} else if ( value_is_idle(&rel_x) && value_is_neg(&rel_y) ) {
-					cur = '8';
-				} else if ( value_is_pos(&rel_x) && value_is_neg(&rel_y) ) {
-					cur = '9';
-				} else if ( value_is_idle(&rel_x) && value_is_idle(&rel_y) ) {
-					cur = '5';
-				} else {
-					cur = '5';
-				}
-				if (cur != last) {
-					putchar(cur);
-					last = cur;
-				}
-				fflush(stdout);
-			}
+		char cur_cmd;
+
+		// TODO: utilizzare select() per avere un timeout nella ricezione
+		// di un carattere
+		fd_set rfds;
+		struct timeval timeout = {
+				.tv_sec = 0,
+				.tv_usec = 100000
+		};
+		
+		FD_ZERO(&rfds);
+           	FD_SET(fd, &rfds);
+
+		int ret = select((fd + 1),&rfds,NULL,NULL,&timeout);
+		if (ret < 0) {
+			exit (-1);
+		} else if (0 == ret /* timeout */) {
+			struct timeval time;
+
+			fprintf(stderr,"timeout\n");
+			cur_cmd = '5';
+			gettimeofday(&time,NULL);
+			putchar(cur_cmd);
+			last_cmd = cur_cmd;
+			last_time = time;
+			fflush(stdout);
 		} else {
-#ifdef DEBUG
-			fprintf(stderr,"read: %lu bytes\n",count);
+			size_t count;
+
+			count = read(fd, &event, sizeof(struct input_event));
+
+			if (sizeof(struct input_event) ==  count) {
+#if 0
+				event_dump(&event);
 #endif
+				if (EV_REL == event.type) {
+
+					switch ( event.code ) {
+					case REL_X:
+						memcpy(&rel_x,&event,sizeof(struct input_event));
+						break;
+					case REL_Y:
+						memcpy(&rel_y,&event,sizeof(struct input_event));
+						break;
+					default:
+						break;
+					}
+				} else if (EV_SYN == event.type) {
+					if ( value_is_pos(&rel_x) && value_is_idle(&rel_y) ) {
+						cur_cmd = '6';
+					} else if ( value_is_pos(&rel_x) && value_is_pos(&rel_y) ) {
+						cur_cmd = '3';
+					} else if ( value_is_idle(&rel_x) && value_is_pos(&rel_y) ) {
+						cur_cmd = '2';
+					} else if ( value_is_neg(&rel_x) && value_is_pos(&rel_y) ) {
+						cur_cmd = '1';
+					} else if ( value_is_neg(&rel_x) && value_is_idle(&rel_y) ) {
+						cur_cmd = '4';
+					} else if ( value_is_neg(&rel_x) && value_is_neg(&rel_y) ) {
+						cur_cmd = '7';
+					} else if ( value_is_idle(&rel_x) && value_is_neg(&rel_y) ) {
+						cur_cmd = '8';
+					} else if ( value_is_pos(&rel_x) && value_is_neg(&rel_y) ) {
+						cur_cmd = '9';
+					} else if ( value_is_idle(&rel_x) && value_is_idle(&rel_y) ) {
+						cur_cmd = '5';
+					} else {
+						cur_cmd = '5';
+					}
+					struct timeval diff;
+					timersub(&event.time,&last_time,&diff);
+					if (cur_cmd != last_cmd || diff.tv_sec > 1) {
+#ifdef DEBUG
+						fprintf(stderr,"%c a: %li b: %li time diff s: %li\n",
+								cur_cmd,event.time.tv_sec,last_time.tv_sec,diff.tv_sec);
+#endif
+						putchar(cur_cmd);
+						last_cmd = cur_cmd;
+						last_time = event.time;
+						fflush(stdout);
+					}
+
+
+				}
+			} else {
+#ifdef DEBUG
+				fprintf(stderr,"read: %lu bytes\n",count);
+#endif
+			}
 		}
 	}
 	return 0;
