@@ -4,7 +4,7 @@ source envsetup
 
 while true; do
   echo connecting to video server
-  raspivid -v -t 0 -w 300 -hf --ISO 800 -w 400 -h 300 -vf -fps 20 -o - | nc -u $HOST $PORT_VID
+  raspivid -v -t 0 -w 300 -hf --ISO 800 -w 400 -h 300 -vf -fps 22 -o - | nc $HOST $PORT_VID
   echo failed
   sleep 2
 done
