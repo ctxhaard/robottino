@@ -119,20 +119,28 @@ int value_is_neg(struct input_event *ie) {
 	return ie->value <= -REL_ACTIVE_MIN;
 }
 
-int main() {
+int main(int argc,const char *argv[]) {
+
 	int fd;
 	struct input_event event, 
 		rel_x, 
 		rel_y;
 	char last_cmd = '5';
-	struct timeval last_time;		
+	struct timeval last_time;
+	const char *file_path;		
+
+	if (argc < 2) {
+		fprintf(stderr,"usage: %s <input file>\n",argv[0]);
+		return -1;
+	}
+	file_path = argv[1];
+	
 	timerclear(&last_time);
 	
-	fd =  open("/dev/input/event18",0);
 	
-	if (fd <= 0) {
-		fprintf(stderr,"can't open file\n");
-		return 0;
+	while ((fd = open(file_path,0)) <= 0) {
+		fprintf(stderr,"can't open file: %s\n",file_path);
+		sleep(5);
 	}
 	
 	while (1) {

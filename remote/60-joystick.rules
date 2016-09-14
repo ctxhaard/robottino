@@ -1,0 +1,2 @@
+ACTION=="add", KERNELS=="input*" SUBSYSTEMS=="input", SYMLINK+="$attr{name}", MODE="0666", GROUP="plugdev"
+
