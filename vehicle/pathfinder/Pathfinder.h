@@ -8,6 +8,9 @@
 #ifndef PATHFINDER_H_
 #define PATHFINDER_H_
 
+
+#define SENSORS_COUNT (3)
+
 namespace ct {
 
 class Pathfinder {
@@ -22,9 +25,7 @@ protected:
 	void closeSensors();
 
 protected:
-	int _sr_fr; // sensor front-right
-	int _sr_fl; // sensor front-left
-	int _sr_rr; // sensor rear
+	int _sensors[SENSORS_COUNT];
 };
 
 } /* namespace ct */

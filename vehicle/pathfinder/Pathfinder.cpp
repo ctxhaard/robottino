@@ -9,7 +9,14 @@
 #include <sys/select.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
+
+#define PROXIMITY_ALERT_MM (100)
+
+#define _sr_fr _sensors[0] // sensor front-right
+#define _sr_fl _sensors[1] // sensor front-left
+#define	_sr_rr _sensors[2] // sensor rear
 
 namespace ct {
 
@@ -24,32 +31,52 @@ Pathfinder::~Pathfinder() {
 
 int Pathfinder::run() {
 	int result = 0;
-	// TODO: look for /dev/proximity* files
-	// select on them
-	_sr_fl = open("/dev/proximity0",O_RDONLY);
-	if (_sr_fl < 0) perror("Can't open front left proximity sensor");
 
-	_sr_fr = open("/dev/proximity1",O_RDONLY);
-	if (_sr_fr < 0) perror("Can't open front right proximity sensor");
+	for (int i=0; i < SENSORS_COUNT; ++i) {
 
-	_sr_rr = open("/dev/proximity2",O_RDONLY);
-	if (_sr_rr < 0) perror("Can't open rear proximity sensor");
+		char path[32];
+		sprintf(path,"/dev/proximity%d",i);
+		int fd = open(path,O_RDONLY);
+		if (fd > 0) _sensors[i] = fd;
+		else {
+			const char *_sensorNames[] = {"Front-left sensor", "Front right sensor", "Rear sensor" };
+			perror(_sensorNames[i]);
+		}
+	}
 
 	int nSensors;
 	if ((nSensors = nValidSensors())) {
 
 		while (1) {
-			fd_set read;
+			fd_set rfds; FD_ZERO(&rfds);
 
-			if (_sr_fl > 0) FD_SET(_sr_fl,&read);
-			if (_sr_fr > 0) FD_SET(_sr_fr,&read);
-			if (_sr_rr > 0) FD_SET(_sr_rr,&read);
+			for (int i=0; i < SENSORS_COUNT; ++i) {
+				if (_sensors[i]) FD_SET(_sensors[i],&rfds);
+			}
 
-			int fds = select(nSensors+1,&read,nullptr,nullptr,nullptr);
+			int fds = select(nSensors+1,&rfds,nullptr,nullptr,nullptr);
 			if(fds < 0) {
 				perror("Error waiting for sensors input");
 				result = -1;
 				break;
+			} else if (fds > 0) {
+
+				for(int i = 0; i < SENSORS_COUNT; ++i) {
+
+					if (FD_ISSET(_sensors[i],&rfds)) {
+						char buffer[16];
+						if(read(_sensors[i],buffer,16)) {
+							const char *padding[] = {"FL", "      FR", "            RR"};
+
+							int val = atoi(buffer);
+
+							printf("\r%s%3d%s",
+									padding[i],
+									(val / 10),
+									(val < PROXIMITY_ALERT_MM ? "*": ""));
+						}
+					}
+				}
 			}
 		}
 	} else {
@@ -60,14 +87,16 @@ int Pathfinder::run() {
 
 int Pathfinder::nValidSensors() {
 	int result = 0;
-	if (_sr_fl > 0) ++result;
-	if (_sr_fr > 0) ++result;
-	if (_sr_rr > 0) ++result;
 
+	for (int i = 0; i < SENSORS_COUNT; ++i) {
+
+		if (_sensors[i] > 0) ++result;
+	}
 	return result;
 }
 
 void Pathfinder::closeSensors() {
+	// TODO: iterate trhough_sensors[] instead of repeat the operation
 	if (_sr_fl > 0) {
 		close(_sr_fl); _sr_fl = 0;
 	}
