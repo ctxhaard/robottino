@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #define PROXIMITY_ALERT_MM (100)
@@ -21,7 +22,7 @@
 namespace ct {
 
 Pathfinder::Pathfinder() {
-	// TODO Auto-generated constructor stub
+	memset(_sensors,0x00,sizeof(_sensors));
 
 }
 
@@ -31,6 +32,7 @@ Pathfinder::~Pathfinder() {
 
 int Pathfinder::run() {
 	int result = 0;
+//	const char *padding[] = {"FL ", "FR ", "RR "};
 
 	for (int i=0; i < SENSORS_COUNT; ++i) {
 
@@ -39,6 +41,7 @@ int Pathfinder::run() {
 		int fd = open(path,O_RDONLY);
 		if (fd > 0) _sensors[i] = fd;
 		else {
+			_sensors[i] = 0;
 			const char *_sensorNames[] = {"Front-left sensor", "Front right sensor", "Rear sensor" };
 			perror(_sensorNames[i]);
 		}
@@ -47,6 +50,11 @@ int Pathfinder::run() {
 	int nSensors;
 	if ((nSensors = nValidSensors())) {
 
+		const char *line_template = "\rFL xxx* FR xxx* RR xxx*";
+
+		char line[sizeof(line_template)];
+		memcpy(line,line_template,strlen(line_template)+1);
+
 		while (1) {
 			fd_set rfds; FD_ZERO(&rfds);
 
@@ -54,26 +62,42 @@ int Pathfinder::run() {
 				if (_sensors[i]) FD_SET(_sensors[i],&rfds);
 			}
 
-			int fds = select(nSensors+1,&rfds,nullptr,nullptr,nullptr);
+			int fds = select(FD_SETSIZE,&rfds,NULL,NULL,NULL);
+			//fprintf(stderr,"select exited\n");
 			if(fds < 0) {
 				perror("Error waiting for sensors input");
 				result = -1;
 				break;
 			} else if (fds > 0) {
+				//fprintf(stderr,"%d sensors ready to read\n",fds);
+				for(int i = 0; i < FD_SETSIZE; ++i) {
 
-				for(int i = 0; i < SENSORS_COUNT; ++i) {
+					if (FD_ISSET(i,&rfds)){
+						for (int j = 0; j < SENSORS_COUNT; ++j) {
 
-					if (FD_ISSET(_sensors[i],&rfds)) {
-						char buffer[16];
-						if(read(_sensors[i],buffer,16)) {
-							const char *padding[] = {"FL", "      FR", "            RR"};
+							if (_sensors[j] == i) {
 
-							int val = atoi(buffer);
+								//fprintf(stderr,"sensors[%d] ready to read\n",j);
+								char buffer[6];
+								int count;
+								if((count = read(_sensors[j],buffer,6))) {
+									//fprintf(stderr,"read %d bytes\n",count);
+									buffer[count] = '\0';
+									char *endptr;
+									int val =  strtol(buffer,&endptr,10);
+									if(endptr > buffer) {
+										//char *pline = line_template;
 
-							printf("\r%s%3d%s",
-									padding[i],
-									(val / 10),
-									(val < PROXIMITY_ALERT_MM ? "*": ""));
+										count = sprintf(buffer,"%3d%s",
+												(val / 10),
+												(val < PROXIMITY_ALERT_MM ? "*" : " "));
+
+										memcpy(line + 4 + (j * 8),buffer,count);
+										fputs(line,stderr);
+									}
+								}
+
+							}
 						}
 					}
 				}
