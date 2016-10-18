@@ -33,11 +33,11 @@ Pathfinder::~Pathfinder() {
 int Pathfinder::run() {
 	int result = 0;
 
-	for (int i=0; i < SENSORS_COUNT; ++i) {
+	for (auto i=0; i < SENSORS_COUNT; ++i) {
 
 		char path[32];
 		sprintf(path,"/dev/proximity%d",i);
-		int fd = open(path,O_RDONLY);
+		auto fd = open(path,O_RDONLY);
 		if (fd > 0) {
 			_sensors[i] = fd;
 		} else {
@@ -59,7 +59,7 @@ int Pathfinder::run() {
 			fd_set rfds;
 			FD_ZERO(&rfds);
 
-			for (int i=0; i < SENSORS_COUNT; ++i) {
+			for (auto i=0; i < SENSORS_COUNT; ++i) {
 				if (_sensors[i]) FD_SET(_sensors[i],&rfds);
 			}
 
@@ -91,7 +91,7 @@ int Pathfinder::run() {
 }
 
 int Pathfinder::nValidSensors() {
-	int result = 0;
+	auto result = 0;
 
 	for (int i = 0; i < SENSORS_COUNT; ++i) {
 
@@ -117,18 +117,26 @@ int Pathfinder::getSensorString(int fd, char* buffer) {
 	if(!buffer) {
 		return 0;
 	}
-	ssize_t count = 0;
+	auto count = 0;
 	if((count = read(fd,buffer,6))) {
-		//fprintf(stderr,"read %d bytes\n",count);
-		buffer[count] = '\0';
-		char *endptr;
-		int val =  strtol(buffer,&endptr,10);
-		if(endptr > buffer) {
-			//char *pline = line_template;
-			count = sprintf(buffer,"%3d%s",
-					(val / 10),
-					(val < PROXIMITY_ALERT_MM ? "*" : " "));
-		}
+		count = formatData(buffer,buffer,6);
+	}
+	return count;
+}
+
+int Pathfinder::formatData(char* inBuffer, char* outBuffer, int count) const {
+
+	//fprintf(stderr,"read %d bytes\n",count);
+	inBuffer[count] = '\0';
+	char *endptr;
+	auto val =  strtol(inBuffer,&endptr,10);
+	if(endptr > inBuffer) {
+		//char *pline = line_template;
+		count = sprintf(outBuffer,"%3li%s",
+				(val / 10),
+				(val < PROXIMITY_ALERT_MM ? "*" : " "));
+	} else {
+		count = 0;
 	}
 	return count;
 }

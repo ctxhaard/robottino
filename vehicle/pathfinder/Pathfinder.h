@@ -24,6 +24,7 @@ protected:
 	int nValidSensors();
 	void closeSensors();
 	int getSensorString(int fd,char *buffer);
+	int formatData(char *inBuffer,char *outBuffer,int count) const;
 
 protected:
 	int _sensors[SENSORS_COUNT];

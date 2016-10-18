@@ -36,6 +36,7 @@ $(TARGET): $(OBJS)
 
 all: $(TARGET)
 
+.PHONY: test
 test: $(TARGET)
 	./$(TARGET)
 	
