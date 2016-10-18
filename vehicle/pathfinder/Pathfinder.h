@@ -23,6 +23,7 @@ public:
 protected:
 	int nValidSensors();
 	void closeSensors();
+	int getSensorString(int fd,char *buffer);
 
 protected:
 	int _sensors[SENSORS_COUNT];
