@@ -15,7 +15,7 @@ CROSS_COMPILE :=
 OBJS += test.o
 TARGET = pathfinder-test
 else
-CROSS_COMPILE = /home/ctomasin/development/raspi/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+CROSS_COMPILE = /home/ctomasin/development/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
 OBJS += main.o
 endif
 
