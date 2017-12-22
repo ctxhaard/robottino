@@ -10,6 +10,7 @@
 pathfinder/ is the implementation of an autonomous vehicle using three proximity sensors and a camera for object recognition.
 
 **TODO:**
+
 	- totally revrite Pathfinder class in pure C++14 (without C)
 	- add path finding logic
 	- add object recognition and following using OpenCV library
