@@ -1,38 +1,38 @@
+PATH := /home/ctomasin/development/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf/bin:$(PATH)
+#CROSS_COMPILE ?= arm-linux-gnueabihf-
+CXX ?= clang++
+
 ifeq ($(NDEBUG),)
-CXXFLAGS =	-std=c++14 -g -Wall -fmessage-length=0
+	CXXFLAGS :=	-std=c++14 -g -Wall -fmessage-length=0
 else
-CXXFLAGS =	-std=c++14 -O2 -g -Wall -fmessage-length=0
+	CXXFLAGS :=	-std=c++14 -O2 -g -Wall -fmessage-length=0
 endif
 
-ARCH = arm
+ARCH := arm
 
-OBJS =	Pathfinder.o
+OBJS :=	Pathfinder.o ProximitySensor.o MotorController.o PFStatus.o
 
-TARGET = pathfinder
+TARGET := pathfinder
 
 ifeq ($(MAKECMDGOALS),test)
-CROSS_COMPILE :=
 OBJS += test.o
-TARGET = pathfinder-test
+TARGET := pathfinder-test
 else
-CROSS_COMPILE = /home/ctomasin/development/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
 OBJS += main.o
 endif
 
-CXX = g++
+LIBS := -lpthread
 
-LIBS =
+USER := pi
 
-USER = pi
-
-REMOTE = robottino
+REMOTE := robottino
 
 .cpp.o:
-	$(CROSS_COMPILE)g++ $(CXXFLAGS) -I /opt/boost_1_62_0 -o $@ -c $<
+	$(CROSS_COMPILE)$(CXX) $(CXXFLAGS) -I /home/ctomasin/development/boost_1_66_0 -o $@ -c $<
 
 
 $(TARGET): $(OBJS)
-	$(CROSS_COMPILE)g++ -o $(TARGET) $(OBJS) $(LIBS)
+	$(CROSS_COMPILE)$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
 
 all: $(TARGET)
 

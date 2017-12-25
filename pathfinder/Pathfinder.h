@@ -1,35 +1,33 @@
-/*
- * Pathfinder.h
- *
- *  Created on: Oct 14, 2016
- *      Author: ctomasin
- */
-
-#ifndef PATHFINDER_H_
-#define PATHFINDER_H_
-
-
-#define SENSORS_COUNT (3)
+#pragma once
+#include <memory>
+#include <future>
+#include <fstream>
+#include "PFStatus.h"
 
 namespace ct {
 
-class Pathfinder {
-public:
-	Pathfinder();
-	virtual ~Pathfinder();
+class MotorController;
+class ProximitySensor;
 
+class Pathfinder {
+
+	friend class PFStatus;
+public:
+	Pathfinder(std::unique_ptr<MotorController> &&leftMotor, std::unique_ptr<MotorController> &&rightMotor, std::unique_ptr<ProximitySensor> &&frontSensor);
+
+	void addLeftSensor(std::unique_ptr<ProximitySensor> &&s);
+	void addRightSensor(std::unique_ptr<ProximitySensor> &&s);
 	int run();
 
-protected:
-	int nValidSensors();
-	void closeSensors();
-	int getSensorString(int fd,char *buffer);
-	int formatData(char *inBuffer,char *outBuffer,int count) const;
+private:
+	std::unique_ptr<MotorController> _ml;
+	std::unique_ptr<MotorController> _mr;
+	std::unique_ptr<ProximitySensor> _sf;
+	std::unique_ptr<ProximitySensor> _sl;
+	std::unique_ptr<ProximitySensor> _sr;
 
-protected:
-	int _sensors[SENSORS_COUNT];
+	std::unique_ptr<PFStatus>        _status;
+	std::ofstream                    _display;
 };
-
 } /* namespace ct */
 
-#endif /* PATHFINDER_H_ */

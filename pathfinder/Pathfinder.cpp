@@ -6,139 +6,56 @@
  */
 
 #include "Pathfinder.h"
-#include <sys/select.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#define PROXIMITY_ALERT_MM (100)
-
-#define _sr_fr _sensors[0] // sensor front-right
-#define _sr_fl _sensors[1] // sensor front-left
-#define	_sr_rr _sensors[2] // sensor rear
+#include "MotorController.h"
+#include "ProximitySensor.h"
+#include "PFStatus.h"
 
 namespace ct {
 
-Pathfinder::Pathfinder() {
-	memset(_sensors,0x00,sizeof(_sensors));
-
-}
-
-Pathfinder::~Pathfinder() {
-	closeSensors();
+Pathfinder::Pathfinder(std::unique_ptr<MotorController> &&leftMotor, std::unique_ptr<MotorController> &&rightMotor, std::unique_ptr<ProximitySensor> &&frontSensor)
+	: _ml{ std::move(leftMotor) }
+	, _mr{ std::move(rightMotor) }
+	, _sf{ std::move(frontSensor) }
+	, _status{ std::make_unique<PFStatus>()  }
+	, _display{ "/dev/lcd0" }
+{
+	// NOTE: devo usare una move() perché una r-value reference è un lvalue (così ho trovato scritto...)
 }
 
 int Pathfinder::run() {
-	int result = 0;
+	auto fs = _sf->acquire([this](int mm) {
+			_display.seekp(16 + 5);
+			_display << (mm / 10);
+			_status->onFrontSensor(*this, mm);
+			});
 
-	for (auto i=0; i < SENSORS_COUNT; ++i) {
+	auto ls = _sl->acquire([this](int mm) {
+			_display.seekp(16);
+			_display << (mm / 10);
+			_status->onLeftSensor(*this, mm);
+			});
 
-		char path[32];
-		sprintf(path,"/dev/proximity%d",i);
-		auto fd = open(path,O_RDONLY);
-		if (fd > 0) {
-			_sensors[i] = fd;
-		} else {
-			_sensors[i] = 0;
-			const char *_sensorNames[] = {"Front-left sensor", "Front right sensor", "Rear sensor" };
-			perror(_sensorNames[i]);
-		}
-	}
+	auto rs = _sr->acquire([this](int mm) {
+			_display.seekp(16 + 10);
+			_display << (mm / 10);
+			_status->onRightSensor(*this, mm);
+			});
 
-	int nSensors;
-	if ((nSensors = nValidSensors())) {
-
-		const auto line_template = "\rFL xxx* FR xxx* RR xxx*";
-		const auto len = strlen(line_template) + 1;
-		char line[len];
-		memcpy(line,line_template,len);
-
-		while (1) {
-			fd_set rfds;
-			FD_ZERO(&rfds);
-
-			for (auto i=0; i < SENSORS_COUNT; ++i) {
-				if (_sensors[i]) FD_SET(_sensors[i],&rfds);
-			}
-
-			auto fds = select(FD_SETSIZE,&rfds,NULL,NULL,NULL);
-			//fprintf(stderr,"select exited\n");
-			if(fds < 0) {
-				perror("Error waiting for sensors input");
-				result = -1;
-				break;
-			} else if (fds > 0) {
-				//fprintf(stderr,"%d sensors ready to read\n",fds);
-				for (auto i = 0; i < SENSORS_COUNT; ++i) {
-					if (FD_ISSET(_sensors[i],&rfds)) {
-						char buffer[6];
-						int count;
-						if((count = getSensorString(_sensors[i],buffer))) {
-							memcpy(line + 4 + (i * 8),buffer,count);
-							fputs(line,stderr);
-
-						}
-					}
-				}
-			}
-		}
-	} else {
-		result = -2;
-	}
-	return result;
+	fs.get();
+	ls.get();
+	rs.get();
+	return 0;
 }
 
-int Pathfinder::nValidSensors() {
-	auto result = 0;
-
-	for (int i = 0; i < SENSORS_COUNT; ++i) {
-
-		if (_sensors[i] > 0) ++result;
-	}
-	return result;
+void Pathfinder::addLeftSensor( std::unique_ptr<ProximitySensor> &&s)
+{
+	_sl = std::move(s);
 }
 
-void Pathfinder::closeSensors() {
-	// TODO: iterate trhough_sensors[] instead of repeat the operation
-	if (_sr_fl > 0) {
-		close(_sr_fl); _sr_fl = 0;
-	}
-	if (_sr_fr > 0) {
-		close(_sr_fr); _sr_fr = 0;
-	}
-	if (_sr_rr > 0) {
-		close(_sr_rr); _sr_rr = 0;
-	}
+void Pathfinder::addRightSensor( std::unique_ptr<ProximitySensor> &&s)
+{
+	_sr = std::move(s);
 }
 
-int Pathfinder::getSensorString(int fd, char* buffer) {
-	if(!buffer) {
-		return 0;
-	}
-	auto count = 0;
-	if((count = read(fd,buffer,6))) {
-		count = formatData(buffer,buffer,6);
-	}
-	return count;
-}
-
-int Pathfinder::formatData(char* inBuffer, char* outBuffer, int count) const {
-
-	//fprintf(stderr,"read %d bytes\n",count);
-	inBuffer[count] = '\0';
-	char *endptr;
-	auto val =  strtol(inBuffer,&endptr,10);
-	if(endptr > inBuffer) {
-		//char *pline = line_template;
-		count = sprintf(outBuffer,"%3li%s",
-				(val / 10),
-				(val < PROXIMITY_ALERT_MM ? "*" : " "));
-	} else {
-		count = 0;
-	}
-	return count;
-}
 
 } /* namespace ct */

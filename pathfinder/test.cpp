@@ -6,9 +6,8 @@
  */
 
 #define BOOST_TEST_MODULE pathfindertest
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
-#define protected public
 #include "Pathfinder.h"
 
 BOOST_AUTO_TEST_SUITE (pathfindertest)
