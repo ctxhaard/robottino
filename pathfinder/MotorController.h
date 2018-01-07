@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <stdexcept>
+#include <fstream>
 
 namespace ct {
 
@@ -15,18 +16,21 @@ class MotorController {
 public:
 	MotorController(int nPwm, int enaPin, int dirPin);
 	virtual ~MotorController();
+
+	void roll();
+
 private:
-	std::string initPwm(int nPwm) const;
+	std::ofstream initPwm(int nPwm) const;
 	void deinitPwm(int nPwm) const;
-	std::string initGpio(int gpioPin) const;
+	std::ofstream initGpio(int gpioPin) const;
 	void deinitGpio(int gpioPin) const;
 
 	int _nPwm;
 	int _enaPin;
 	int _dirPin;
 
-	std::string _pwmPath;
-	std::string _enaPath;
-	std::string _dirPath;
+	std::ofstream _pwmStream;
+	std::ofstream _enaStream;
+	std::ofstream _dirStream;
 };
 } // namespace ct

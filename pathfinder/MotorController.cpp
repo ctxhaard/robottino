@@ -10,9 +10,9 @@ namespace ct
 MotorController::MotorController(int nPwm, int enaPin, int dirPin)
 	: _nPwm{nPwm}, _enaPin{enaPin}, _dirPin{dirPin}
 {
-	_pwmPath = initPwm(nPwm);
-	_enaPath = initGpio(enaPin);
-	_dirPath = initGpio(dirPin);
+	_pwmStream = initPwm(nPwm);
+	_enaStream = initGpio(enaPin);
+	_dirStream = initGpio(dirPin);
 }
 
 MotorController::~MotorController()
@@ -20,8 +20,20 @@ MotorController::~MotorController()
 	deinitPwm(_nPwm);
 	deinitGpio(_enaPin);
 	deinitGpio(_dirPin);
+
+	if (_pwmStream.is_open()) { _pwmStream.close(); }
+	if (_enaStream.is_open()) { _enaStream.close(); }
+	if (_dirStream.is_open()) { _dirStream.close(); }
 }
-std::string MotorController::initPwm(int nPwm) const
+
+void MotorController::roll()
+{
+	_pwmStream << "0" << std::flush;
+	_enaStream << "0" << std::flush;
+}
+
+
+std::ofstream MotorController::initPwm(int nPwm) const
 {
 	std::ofstream outf{"/sys/class/pwm/pwmchip0/export"};
 	if (!outf.is_open()) { throw PwmInitExportException(); }
@@ -47,18 +59,20 @@ std::string MotorController::initPwm(int nPwm) const
 	oss.clear();
 	oss.str("");
 	oss << "/sys/class/pwm/pwmchip0/pwm" << nPwm << "/duty_cycle";
-	return oss.str();
+
+	return std::ofstream(oss.str().c_str());
 }
 
-void MotorController::deinitPwm(int nPwm) const
+void MotorController::deinitPwm(int nPwm) const 
 {
 	std::ofstream outf{"/sys/class/pwm/pwmchip0/unexport"};
-	if (!outf.is_open()) { return; }
-	outf << nPwm;
-	outf.close();
+	if (outf.is_open()) {
+		outf << nPwm;
+		outf.close();
+	}
 }
 
-std::string MotorController::initGpio(int gpioPin) const
+std::ofstream MotorController::initGpio(int gpioPin) const
 {
 	std::ofstream outf{"/sys/class/gpio/export"};
 	if (!outf.is_open()) { throw GpioInitException();  }
@@ -75,7 +89,7 @@ std::string MotorController::initGpio(int gpioPin) const
 	oss.clear();
 	oss.str("");
 	oss << "/sys/class/gpio/gpio" << (BASE_GPIO + gpioPin) << "/value";
-	return oss.str();
+	return std::ofstream(oss.str().c_str());
 }
 
 void MotorController::deinitGpio(int gpioPin) const

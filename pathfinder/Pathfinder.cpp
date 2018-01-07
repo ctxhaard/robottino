@@ -16,7 +16,7 @@ Pathfinder::Pathfinder(std::unique_ptr<MotorController> &&leftMotor, std::unique
 	: _ml{ std::move(leftMotor) }
 	, _mr{ std::move(rightMotor) }
 	, _sf{ std::move(frontSensor) }
-	, _status{ std::make_unique<PFStatus>()  }
+	, _status{ std::make_unique<PFStatusRolling>(*this)  }
 	, _display{ "/dev/lcd0" }
 {
 	// NOTE: devo usare una move() perché una r-value reference è un lvalue (così ho trovato scritto...)
