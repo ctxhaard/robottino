@@ -58,4 +58,24 @@ PFStatusRolling::~PFStatusRolling()
 {
 
 }
+
+void PFStatusRolling::onFrontSensor(Pathfinder& self, int mm)
+{
+// if mm < 50 => back
+// else if mm < 100
+// 	rotate left or right (based on the bigger lateral distance)
+// else
+//	forward
+}
+
+void PFStatusRolling::onLeftSensor(Pathfinder& self, int mm)
+{
+// TODO: if mm < 80 & front acquired => rotate left
+
+}
+
+void onRightSensor(Pathfinder& self, int mm)
+{
+// TODO: if mm < 80 & front acquired => rotate right
+}
 } // namespace ct

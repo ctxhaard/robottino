@@ -30,5 +30,8 @@ class PFStatusRolling: public PFStatus
 public:
 	PFStatusRolling(Pathfinder &p);
 	~PFStatusRolling();
+	void onFrontSensor(Pathfinder& self, int mm);
+	void onLeftSensor(Pathfinder& self, int mm);
+	void onRightSensor(Pathfinder& self, int mm);
 };
 } // namespace ct
