@@ -4,6 +4,10 @@
 #include <fstream>
 #include "PFStatus.h"
 
+#define FRONT_MM_MIN (50)
+#define FRONT_MM_ALERT (100)
+#define LATERAL_MM_MIN (80)
+
 namespace ct {
 
 class MotorController;
