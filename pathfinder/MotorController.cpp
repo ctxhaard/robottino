@@ -4,6 +4,7 @@
 
 #define BASE_GPIO (458)
 #define PWM_PERIOD_NS (500000)
+#define POWER_MAX (10)
 
 namespace ct
 {
@@ -32,6 +33,13 @@ void MotorController::roll()
 	_enaStream << "0" << std::flush;
 }
 
+void MotorController::forward(int power)
+{
+	power = (power > POWER_MAX ? POWER_MAX : power);
+	_dirStream << "1" << std::flush;
+	_pwmStream << (power * PWM_PERIOD_NS / POWER_MAX)  << std::flush;
+	_enaStream << "1" << std::flush;
+}
 
 std::ofstream MotorController::initPwm(int nPwm) const
 {

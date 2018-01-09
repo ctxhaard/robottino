@@ -18,6 +18,7 @@ public:
 	virtual ~MotorController();
 
 	void roll();
+	void forward(int power);
 
 private:
 	std::ofstream initPwm(int nPwm) const;
