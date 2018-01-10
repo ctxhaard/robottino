@@ -19,6 +19,7 @@ public:
 
 	void roll();
 	void forward(int power);
+	void back(int power);
 
 private:
 	std::ofstream initPwm(int nPwm) const;
