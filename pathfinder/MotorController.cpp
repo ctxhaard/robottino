@@ -1,6 +1,7 @@
 #include "MotorController.h"
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #define BASE_GPIO (458)
 #define PWM_PERIOD_NS (500000)
@@ -55,9 +56,10 @@ std::ofstream MotorController::initPwm(int nPwm) const
 	outf << nPwm;
 	outf.close();
 	
-	std::ostringstream oss {"/sys/class/pwm/pwmchip0/pwm"};
-	oss << nPwm << "/period";
+	std::ostringstream oss;
+        oss << "/sys/class/pwm/pwmchip0/pwm" << nPwm << "/period";
 	outf.open(oss.str());
+	std::cout << "opening " << oss.str() << std::endl;
 	if (!outf.is_open()) { throw PwmInitPeriodException(); }
 	outf << PWM_PERIOD_NS;
 	outf.close();
@@ -66,6 +68,7 @@ std::ofstream MotorController::initPwm(int nPwm) const
 	oss.str("");
 	oss << "/sys/class/pwm/pwmchip0/pwm";
 	oss << nPwm << "/enable";
+	std::cout << "opening " << oss.str() << std::endl;
 	outf.open(oss.str());
 	if (!outf.is_open()) { throw PwmInitiEnableException(); }
 	outf << 1;

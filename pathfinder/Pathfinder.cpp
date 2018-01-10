@@ -16,13 +16,13 @@ Pathfinder::Pathfinder(std::unique_ptr<MotorController> &&leftMotor, std::unique
 	: _ml{ std::move(leftMotor) }
 	, _mr{ std::move(rightMotor) }
 	, _sf{ std::move(frontSensor) }
-	, _status{ std::make_unique<PFStatusRolling>(*this)  }
 	, _display{ "/dev/lcd0" }
 {
 	// NOTE: devo usare una move() perché una r-value reference è un lvalue (così ho trovato scritto...)
 }
 
 int Pathfinder::run() {
+	_status = std::make_unique<PFStatusRolling>(*this); 
 	auto fs = _sf->acquire([this](int mm) {
 			_display.seekp(16 + 5);
 			_display << (mm / 10);

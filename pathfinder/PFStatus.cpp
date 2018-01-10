@@ -2,6 +2,7 @@
 #include "Pathfinder.h"
 #include "MotorController.h"
 #include "ProximitySensor.h"
+#include <iostream>
 
 namespace ct
 {
@@ -83,6 +84,7 @@ PFStatusRolling::~PFStatusRolling()
 
 void PFStatusRolling::onFrontSensor(Pathfinder& self, int mm)
 {
+	std::cout << __func__ << std::endl;
 	PFStatus::onFrontSensor(self, mm);
 	if (mm < FRONT_MM_MIN) {
 		setStatus(new PFStatusBack(self));
@@ -212,7 +214,7 @@ void PFStatusRotateLeft::onFrontSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onFrontSensor(self, mm);	
 	if (mm >= FRONT_MM_OK) {
-		setStatus(new PFStatusForward(self);
+		setStatus(new PFStatusForward(self));
 	}
 }
 

@@ -6,6 +6,7 @@
 
 #define FRONT_MM_MIN (50)
 #define FRONT_MM_ALERT (100)
+#define FRONT_MM_OK (200)
 #define LATERAL_MM_MIN (80)
 
 namespace ct {

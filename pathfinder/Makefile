@@ -1,11 +1,13 @@
-PATH := /home/ctomasin/development/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf/bin:$(PATH)
-#CROSS_COMPILE ?= arm-linux-gnueabihf-
+# note: gcc < 5.0 bug (https://stackoverflow.com/questions/29320315/error-use-of-deleted-function-stdbasic-ofstream-opencv-and-c11)
+#PATH := /home/ctomasin/development/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf/bin:$(PATH)
+PATH := /home/ctomasin/development/gcc-linaro-5.1-2015.08-x86_64_arm-linux-gnueabihf/bin:$(PATH)
+CROSS_COMPILE ?= arm-linux-gnueabihf-
 CXX ?= clang++
 
 ifeq ($(NDEBUG),)
-	CXXFLAGS :=	-std=c++14 -g -Wall -fmessage-length=0
+	CXXFLAGS := -std=c++14 -g -Wall -fmessage-length=0
 else
-	CXXFLAGS :=	-std=c++14 -O2 -g -Wall -fmessage-length=0
+	CXXFLAGS := -std=c++14 -O2 -g -Wall -fmessage-length=0
 endif
 
 ARCH := arm
@@ -23,7 +25,7 @@ endif
 
 LIBS := -lpthread
 
-USER := pi
+USER := root
 
 REMOTE := robottino
 
