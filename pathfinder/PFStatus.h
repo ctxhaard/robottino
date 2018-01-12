@@ -1,5 +1,6 @@
 #pragma once
 #include <fstream>
+#include <mutex>
 
 namespace ct {
 
@@ -23,6 +24,7 @@ protected:
 	ProximitySensor& getSensorRight() const;
 	ProximitySensor& getSensorFront() const;
 	std::ofstream& getDisplay();
+	std::mutex& getDisplayMutex();
 	void setStatus(PFStatus *newStatus);
 	
 protected:

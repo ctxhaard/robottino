@@ -16,10 +16,11 @@ std::future<int> ProximitySensor::acquire(std::function<void(int)> callback)
 				std::cout << "proximity async lambda" << std::endl;
 				std::ifstream is(_devPath);
 				while (is.is_open()) {
-					std::cout << "proxymity read" << std::endl;
+					//std::cout << "proximity read ";
 					int mm;
 					is >> mm;
 					_mm = mm;
+					//std::cout << mm << std::endl;
 					callback(mm);
 				}
 				return 0;

@@ -2,6 +2,7 @@
 #include <memory>
 #include <future>
 #include <fstream>
+#include <mutex>
 #include "PFStatus.h"
 
 #define FRONT_MM_MIN (50)
@@ -33,6 +34,7 @@ private:
 
 	std::unique_ptr<PFStatus>        _status;
 	std::ofstream                    _display;
+	std::mutex                       _displayMutex;
 };
 } /* namespace ct */
 

@@ -3,13 +3,17 @@
 #include "MotorController.h"
 #include "ProximitySensor.h"
 #include <iostream>
+#include <mutex>
+#include <iomanip>
 
 namespace ct
 {
 PFStatus::PFStatus(Pathfinder& p, const char *name)
 	: _self{ p }
 {
-	getDisplay() << name << std::flush;
+	std::lock_guard<std::mutex> lock(getDisplayMutex());
+	getDisplay().seekp(0)  << std::left << std::setw(15) << std::setfill('.') << name << std::flush;
+	std::cout << "new status: " << name << std::endl;
 }
 
 PFStatus::~PFStatus()
@@ -41,9 +45,14 @@ MotorController& PFStatus::getMotorRight() const
 	return *_self._mr.get();
 }
 
-std::ofstream &PFStatus::getDisplay()
+std::ofstream& PFStatus::getDisplay()
 {
 	return _self._display;
+}
+
+std::mutex& PFStatus::getDisplayMutex()
+{
+	return _self._displayMutex;
 }
 
 ProximitySensor& PFStatus::getSensorLeft() const
