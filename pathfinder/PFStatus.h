@@ -26,9 +26,13 @@ protected:
 	std::ofstream& getDisplay();
 	std::mutex& getDisplayMutex();
 	void setStatus(PFStatus *newStatus);
+	std::mutex& getStatusMutex();
+	virtual void begin();
+	virtual void end();
 	
 protected:
 	Pathfinder &_self;
+	std::string _name;
 };
 
 // ---------------------------------------------------------------------------
@@ -36,7 +40,7 @@ class PFStatusRolling: public PFStatus
 {
 public:
 	PFStatusRolling(Pathfinder &p);
-	~PFStatusRolling();
+	void begin() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;
@@ -47,7 +51,7 @@ class PFStatusForward: public PFStatus
 {
 public:
 	PFStatusForward(Pathfinder &p);
-	~PFStatusForward();
+	void begin() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;
@@ -58,7 +62,7 @@ class PFStatusBack: public PFStatus
 {
 public:
 	PFStatusBack(Pathfinder &p);
-	~PFStatusBack();
+	void begin() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;
@@ -69,7 +73,7 @@ class PFStatusRotateLeft: public PFStatus
 {
 public:
 	PFStatusRotateLeft(Pathfinder &p);
-	~PFStatusRotateLeft();
+	void begin() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;
@@ -80,7 +84,7 @@ class PFStatusRotateRight: public PFStatus
 {
 public:
 	PFStatusRotateRight(Pathfinder &p);
-	~PFStatusRotateRight();
+	void begin() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;
@@ -91,7 +95,7 @@ class PFStatusTurnLeft: public PFStatus
 {
 public:
 	PFStatusTurnLeft(Pathfinder &p);
-	~PFStatusTurnLeft();
+	void begin() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;
@@ -102,7 +106,7 @@ class PFStatusTurnRight: public PFStatus
 {
 public:
 	PFStatusTurnRight(Pathfinder &p);
-	~PFStatusTurnRight();
+	void begin() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;

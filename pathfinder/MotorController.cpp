@@ -26,6 +26,7 @@ MotorController::~MotorController()
 
 void MotorController::roll()
 {
+	std::cout << "roll" << std::endl;
 	std::ofstream pwmStream{ _pwmDutyPath };
 	std::ofstream enaStream{ _enaPath };
 	pwmStream << "0";
@@ -34,6 +35,7 @@ void MotorController::roll()
 
 void MotorController::forward(int power)
 {
+	std::cout << "forward " << power << std::endl;
 	std::ofstream pwmStream{ _pwmDutyPath };
 	std::ofstream enaStream{ _enaPath };
 	std::ofstream dirStream{ _dirPath };
@@ -45,6 +47,7 @@ void MotorController::forward(int power)
 
 void MotorController::back(int power)
 {
+	std::cout << "back " << power << std::endl;
 	std::ofstream pwmStream{ _pwmDutyPath };
 	std::ofstream enaStream{ _enaPath };
 	std::ofstream dirStream{ _dirPath };

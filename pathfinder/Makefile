@@ -27,7 +27,7 @@ LIBS := -lpthread
 
 USER := root
 
-REMOTE := robottino
+REMOTE := robottino-wifi
 
 .cpp.o:
 	$(CROSS_COMPILE)$(CXX) $(CXXFLAGS) -I /home/ctomasin/development/boost_1_66_0 -o $@ -c $<

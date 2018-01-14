@@ -5,10 +5,10 @@
 #include <mutex>
 #include "PFStatus.h"
 
-#define FRONT_MM_MIN (50)
-#define FRONT_MM_ALERT (100)
-#define FRONT_MM_OK (200)
-#define LATERAL_MM_MIN (80)
+#define FRONT_MM_MIN (150)
+#define FRONT_MM_ALERT (200)
+#define FRONT_MM_OK (250)
+#define LATERAL_MM_MIN (150)
 
 namespace ct {
 
@@ -33,6 +33,7 @@ private:
 	std::unique_ptr<ProximitySensor> _sr;
 
 	std::unique_ptr<PFStatus>        _status;
+	std::mutex                       _statusMutex;
 	std::ofstream                    _display;
 	std::mutex                       _displayMutex;
 };
