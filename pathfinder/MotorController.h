@@ -22,17 +22,17 @@ public:
 	void back(int power);
 
 private:
-	std::ofstream initPwm(int nPwm) const;
+	std::string initPwm(int nPwm) const;
 	void deinitPwm(int nPwm) const;
-	std::ofstream initGpio(int gpioPin) const;
+	std::string initGpio(int gpioPin) const;
 	void deinitGpio(int gpioPin) const;
 
 	int _nPwm;
 	int _enaPin;
 	int _dirPin;
 
-	std::ofstream _pwmStream;
-	std::ofstream _enaStream;
-	std::ofstream _dirStream;
+	std::string _pwmDutyPath;
+	std::string _enaPath;
+	std::string _dirPath;
 };
 } // namespace ct

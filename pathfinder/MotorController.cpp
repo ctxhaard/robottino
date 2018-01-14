@@ -12,9 +12,9 @@ namespace ct
 MotorController::MotorController(int nPwm, int enaPin, int dirPin)
 	: _nPwm{nPwm}, _enaPin{enaPin}, _dirPin{dirPin}
 {
-	_pwmStream = initPwm(nPwm);
-	_enaStream = initGpio(enaPin);
-	_dirStream = initGpio(dirPin);
+	_pwmDutyPath = initPwm(nPwm);
+	_enaPath = initGpio(enaPin);
+	_dirPath = initGpio(dirPin);
 }
 
 MotorController::~MotorController()
@@ -22,34 +22,38 @@ MotorController::~MotorController()
 	deinitPwm(_nPwm);
 	deinitGpio(_enaPin);
 	deinitGpio(_dirPin);
-
-	if (_pwmStream.is_open()) { _pwmStream.close(); }
-	if (_enaStream.is_open()) { _enaStream.close(); }
-	if (_dirStream.is_open()) { _dirStream.close(); }
 }
 
 void MotorController::roll()
 {
-	_pwmStream << "0" << std::flush;
-	_enaStream << "0" << std::flush;
+	std::ofstream pwmStream{ _pwmDutyPath };
+	std::ofstream enaStream{ _enaPath };
+	pwmStream << "0";
+	enaStream << "0";
 }
 
 void MotorController::forward(int power)
 {
+	std::ofstream pwmStream{ _pwmDutyPath };
+	std::ofstream enaStream{ _enaPath };
+	std::ofstream dirStream{ _dirPath };
 	power = (power > POWER_MAX ? POWER_MAX : power);
-	_dirStream << "1" << std::flush;
-	_pwmStream << (power * PWM_PERIOD_NS / POWER_MAX)  << std::flush;
-	_enaStream << "1" << std::flush;
+	dirStream << "0";
+	pwmStream << (power * PWM_PERIOD_NS / POWER_MAX);
+	enaStream << "1";
 }
 
 void MotorController::back(int power)
 {
+	std::ofstream pwmStream{ _pwmDutyPath };
+	std::ofstream enaStream{ _enaPath };
+	std::ofstream dirStream{ _dirPath };
 	power = (power > POWER_MAX ? POWER_MAX : power);
-	_dirStream << "0" << std::flush;
-	_pwmStream << (power * PWM_PERIOD_NS / POWER_MAX)  << std::flush;
-	_enaStream << "1" << std::flush;
+	dirStream << "1";
+	pwmStream << (power * PWM_PERIOD_NS / POWER_MAX);
+	enaStream << "1";
 }
-std::ofstream MotorController::initPwm(int nPwm) const
+std::string MotorController::initPwm(int nPwm) const
 {
 	std::ofstream outf{"/sys/class/pwm/pwmchip0/export"};
 	if (!outf.is_open()) { throw PwmInitExportException(); }
@@ -78,7 +82,7 @@ std::ofstream MotorController::initPwm(int nPwm) const
 	oss.str("");
 	oss << "/sys/class/pwm/pwmchip0/pwm" << nPwm << "/duty_cycle";
 
-	return std::ofstream(oss.str().c_str());
+	return oss.str().c_str();
 }
 
 void MotorController::deinitPwm(int nPwm) const 
@@ -90,7 +94,7 @@ void MotorController::deinitPwm(int nPwm) const
 	}
 }
 
-std::ofstream MotorController::initGpio(int gpioPin) const
+std::string MotorController::initGpio(int gpioPin) const
 {
 	std::ofstream outf{"/sys/class/gpio/export"};
 	if (!outf.is_open()) { throw GpioInitException();  }
@@ -107,7 +111,7 @@ std::ofstream MotorController::initGpio(int gpioPin) const
 	oss.clear();
 	oss.str("");
 	oss << "/sys/class/gpio/gpio" << (BASE_GPIO + gpioPin) << "/value";
-	return std::ofstream(oss.str().c_str());
+	return oss.str().c_str();
 }
 
 void MotorController::deinitGpio(int gpioPin) const
