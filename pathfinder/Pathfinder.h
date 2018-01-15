@@ -26,6 +26,9 @@ public:
 	int run();
 
 private:
+	void setStatus(PFStatus *newStatus);
+
+private:
 	std::unique_ptr<MotorController> _ml;
 	std::unique_ptr<MotorController> _mr;
 	std::unique_ptr<ProximitySensor> _sf;

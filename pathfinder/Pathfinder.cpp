@@ -10,6 +10,8 @@
 #include "ProximitySensor.h"
 #include "PFStatus.h"
 #include <iomanip>
+#include <chrono>
+#include <thread>
 
 namespace ct {
 
@@ -54,6 +56,9 @@ int Pathfinder::run() {
 	fs.get();
 	ls.get();
 	rs.get();
+
+	_ml->roll();
+	_mr->roll();
 	return 0;
 }
 
@@ -65,6 +70,15 @@ void Pathfinder::addLeftSensor( std::unique_ptr<ProximitySensor> &&s)
 void Pathfinder::addRightSensor( std::unique_ptr<ProximitySensor> &&s)
 {
 	_sr = std::move(s);
+}
+
+void Pathfinder::setStatus(PFStatus *newStatus)
+{
+	std::lock_guard<std::mutex> statusLock(_statusMutex);
+	_status->end();
+	std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ));
+	_status.reset(newStatus);
+	_status->begin();
 }
 
 

@@ -75,15 +75,12 @@ ProximitySensor& PFStatus::getSensorFront() const
 
 void PFStatus::setStatus(PFStatus *newStatus)
 {
-	std::lock_guard<std::mutex> statusLock(getStatusMutex());
-	_self._status->end();
-	_self._status.reset(newStatus);
+	_self.setStatus( newStatus );
 	{
 		std::lock_guard<std::mutex> displayLock(getDisplayMutex());
 		getDisplay().seekp(0)  << std::left << std::setw(15) << std::setfill('.') << newStatus->_name << std::flush;
 	}
 	std::cout << "new status: " << newStatus->_name << std::endl;
-	_self._status->begin();
 }
 
 void PFStatus::begin()

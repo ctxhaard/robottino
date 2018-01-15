@@ -49,4 +49,4 @@ clean:
 # loads the command on the remote target
 .PHONY: load	
 load:
-	scp $(TARGET) $(user)@$(REMOTE):
+	scp $(TARGET) $(USER)@$(REMOTE):

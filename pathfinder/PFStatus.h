@@ -10,6 +10,9 @@ class ProximitySensor;
 
 class PFStatus
 {
+
+friend class Pathfinder;
+
 public:
 	PFStatus(Pathfinder &p, const char *name);
 	virtual ~PFStatus();
