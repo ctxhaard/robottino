@@ -10,8 +10,8 @@
 #include "ProximitySensor.h"
 #include "PFStatus.h"
 #include <iomanip>
-#include <chrono>
-#include <thread>
+//#include <chrono>
+//#include <thread>
 
 namespace ct {
 
@@ -76,7 +76,7 @@ void Pathfinder::setStatus(PFStatus *newStatus)
 {
 	std::lock_guard<std::mutex> statusLock(_statusMutex);
 	_status->end();
-	std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ));
+	//std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ));
 	_status.reset(newStatus);
 	_status->begin();
 }

@@ -19,6 +19,7 @@ MotorController::MotorController(int nPwm, int enaPin, int dirPin)
 
 MotorController::~MotorController()
 {
+	roll();
 	deinitPwm(_nPwm);
 	deinitGpio(_enaPin);
 	deinitGpio(_dirPin);
