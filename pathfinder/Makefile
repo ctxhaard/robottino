@@ -4,10 +4,11 @@ PATH := /home/ctomasin/development/gcc-linaro-5.1-2015.08-x86_64_arm-linux-gnuea
 CROSS_COMPILE ?= arm-linux-gnueabihf-
 CXX ?= clang++
 
+CXXFLAGS := -std=c++14 -Wall -fmessage-length=0 -fexceptions -fdiagnostics-color -pedantic 
 ifeq ($(NDEBUG),)
-	CXXFLAGS := -std=c++14 -g -Wall -fmessage-length=0
+	CXXFLAGS += -g 
 else
-	CXXFLAGS := -std=c++14 -O2 -g -Wall -fmessage-length=0
+	CXXFLAGS += -O2 
 endif
 
 ARCH := arm
@@ -30,7 +31,7 @@ USER := root
 REMOTE := robottino-wifi
 
 .cpp.o:
-	$(CROSS_COMPILE)$(CXX) $(CXXFLAGS) -I /home/ctomasin/development/boost_1_66_0 -o $@ -c $<
+	$(CROSS_COMPILE)$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 
 $(TARGET): $(OBJS)
