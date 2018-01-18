@@ -10,6 +10,7 @@
 #include "ProximitySensor.h"
 #include "PFStatus.h"
 #include <iomanip>
+#include <iostream>
 #include <chrono>
 #include <thread>
 
@@ -28,27 +29,42 @@ int Pathfinder::run() {
 	_status = std::make_unique<PFStatusRolling>(*this); 
 	auto fs = _sf->acquire([this](int mm) {
 			{
-				std::lock_guard<std::mutex> lock(_displayMutex);
-				_display.seekp(16 + 5);
-				_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
+				try {
+					std::lock_guard<std::mutex> lock(_displayMutex);
+					_display.seekp(16 + 5);
+					_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
+				} catch(std::exception& e) {
+					std::cout << e.what() << std::endl;
+					throw e;
+				}
 			}
 			_status->onFrontSensor(*this, mm);
 			});
 
 	auto ls = _sl->acquire([this](int mm) {
 			{
-				std::lock_guard<std::mutex> lock(_displayMutex);
-				_display.seekp(16);
-				_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
+				try {
+					std::lock_guard<std::mutex> lock(_displayMutex);
+					_display.seekp(16);
+					_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
+				} catch(std::exception& e) {
+					std::cout << e.what() << std::endl;
+					throw e;
+				}
 			}
 			_status->onLeftSensor(*this, mm);
 			});
 
 	auto rs = _sr->acquire([this](int mm) {
 			{
-				std::lock_guard<std::mutex> lock(_displayMutex);
-				_display.seekp(16 + 10);
-				_display << std::right << std::setw(5) << std::setfill('.') << (mm / 10);
+				try {
+					std::lock_guard<std::mutex> lock(_displayMutex);
+					_display.seekp(16 + 10);
+					_display << std::right << std::setw(5) << std::setfill('.') << (mm / 10);
+				} catch(std::exception& e) {
+					std::cout << e.what() << std::endl;
+					throw e;
+				}
 			}
 			_status->onRightSensor(*this, mm);
 			});
