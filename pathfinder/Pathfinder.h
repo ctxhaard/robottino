@@ -12,28 +12,28 @@
 
 namespace ct {
 
-class MotorController;
-class ProximitySensor;
+class IMotorController;
+class IProximitySensor;
 
 class Pathfinder {
 
 	friend class PFStatus;
 public:
-	Pathfinder(std::unique_ptr<MotorController> &&leftMotor, std::unique_ptr<MotorController> &&rightMotor, std::unique_ptr<ProximitySensor> &&frontSensor);
+	Pathfinder(std::unique_ptr<IMotorController> &&leftMotor, std::unique_ptr<IMotorController> &&rightMotor, std::unique_ptr<IProximitySensor> &&frontSensor);
 
-	void addLeftSensor(std::unique_ptr<ProximitySensor> &&s);
-	void addRightSensor(std::unique_ptr<ProximitySensor> &&s);
+	void addLeftSensor(std::unique_ptr<IProximitySensor> &&s);
+	void addRightSensor(std::unique_ptr<IProximitySensor> &&s);
 	int run();
 
 private:
 	void setStatus(PFStatus *newStatus);
 
 private:
-	std::unique_ptr<MotorController> _ml;
-	std::unique_ptr<MotorController> _mr;
-	std::unique_ptr<ProximitySensor> _sf;
-	std::unique_ptr<ProximitySensor> _sl;
-	std::unique_ptr<ProximitySensor> _sr;
+	std::unique_ptr<IMotorController> _ml;
+	std::unique_ptr<IMotorController> _mr;
+	std::unique_ptr<IProximitySensor> _sf;
+	std::unique_ptr<IProximitySensor> _sl;
+	std::unique_ptr<IProximitySensor> _sr;
 
 	std::unique_ptr<PFStatus>        _status;
 	std::mutex                       _statusMutex;

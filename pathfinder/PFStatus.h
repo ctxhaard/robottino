@@ -5,8 +5,8 @@
 namespace ct {
 
 class Pathfinder;
-class MotorController;
-class ProximitySensor;
+class IMotorController;
+class IProximitySensor;
 
 class PFStatus
 {
@@ -21,11 +21,11 @@ public:
 	virtual void onRightSensor(Pathfinder& self, int mm);
 
 protected:
-	MotorController& getMotorLeft() const;
-	MotorController& getMotorRight() const;
-	ProximitySensor& getSensorLeft() const;
-	ProximitySensor& getSensorRight() const;
-	ProximitySensor& getSensorFront() const;
+	IMotorController& getMotorLeft() const;
+	IMotorController& getMotorRight() const;
+	IProximitySensor& getSensorLeft() const;
+	IProximitySensor& getSensorRight() const;
+	IProximitySensor& getSensorFront() const;
 	std::ofstream& getDisplay();
 	std::mutex& getDisplayMutex();
 	void setStatus(PFStatus *newStatus);

@@ -16,7 +16,7 @@
 
 namespace ct {
 
-Pathfinder::Pathfinder(std::unique_ptr<MotorController> &&leftMotor, std::unique_ptr<MotorController> &&rightMotor, std::unique_ptr<ProximitySensor> &&frontSensor)
+Pathfinder::Pathfinder(std::unique_ptr<IMotorController> &&leftMotor, std::unique_ptr<IMotorController> &&rightMotor, std::unique_ptr<IProximitySensor> &&frontSensor)
 	: _ml{ std::move(leftMotor) }
 	, _mr{ std::move(rightMotor) }
 	, _sf{ std::move(frontSensor) }
@@ -26,48 +26,44 @@ Pathfinder::Pathfinder(std::unique_ptr<MotorController> &&leftMotor, std::unique
 }
 
 int Pathfinder::run() {
+	std::mutex loopMutex;
+	loopMutex.lock();
 	_status = std::make_unique<PFStatusRolling>(*this); 
-	auto fs = _sf->acquire([this](int mm) {
-			{
-				try {
-					std::lock_guard<std::mutex> lock(_displayMutex);
-					_display.seekp(16 + 5);
-					_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
-				} catch(std::exception& e) {
-					std::cout << e.what() << std::endl;
-					throw e;
-				}
-			}
-			_status->onFrontSensor(*this, mm);
+	auto fs = _sf->acquire([this, &loopMutex](int mm) {
+				loopMutex.unlock();
+				std::lock_guard<std::mutex> lock(_displayMutex);
+				_display.seekp(16 + 5);
+				_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
 			});
 
-	auto ls = _sl->acquire([this](int mm) {
-			{
-				try {
-					std::lock_guard<std::mutex> lock(_displayMutex);
-					_display.seekp(16);
-					_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
-				} catch(std::exception& e) {
-					std::cout << e.what() << std::endl;
-					throw e;
-				}
-			}
-			_status->onLeftSensor(*this, mm);
+	auto ls = _sl->acquire([this, &loopMutex](int mm) {
+				loopMutex.unlock();
+				std::lock_guard<std::mutex> lock(_displayMutex);
+				_display.seekp(16);
+				_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
 			});
 
-	auto rs = _sr->acquire([this](int mm) {
-			{
-				try {
-					std::lock_guard<std::mutex> lock(_displayMutex);
-					_display.seekp(16 + 10);
-					_display << std::right << std::setw(5) << std::setfill('.') << (mm / 10);
-				} catch(std::exception& e) {
-					std::cout << e.what() << std::endl;
-					throw e;
-				}
-			}
-			_status->onRightSensor(*this, mm);
+	auto rs = _sr->acquire([this, &loopMutex](int mm) {
+				loopMutex.unlock();
+				std::lock_guard<std::mutex> lock(_displayMutex);
+				_display.seekp(16 + 10);
+				_display << std::right << std::setw(5) << std::setfill('.') << (mm / 10);
 			});
+
+	while(true) {
+		{
+			std::lock_guard<std::mutex> lock(loopMutex);
+		}
+		if (_sf->hasNewMeas()) {
+			_status->onFrontSensor(*this, _sf->getMm());
+		}
+		if (_sl->hasNewMeas()) {
+			_status->onLeftSensor(*this, _sl->getMm());
+		}
+		if (_sr->hasNewMeas()) {
+			_status->onRightSensor(*this, _sr->getMm());
+		}
+	};
 
 	fs.get();
 	ls.get();
@@ -78,12 +74,12 @@ int Pathfinder::run() {
 	return 0;
 }
 
-void Pathfinder::addLeftSensor( std::unique_ptr<ProximitySensor> &&s)
+void Pathfinder::addLeftSensor( std::unique_ptr<IProximitySensor> &&s)
 {
 	_sl = std::move(s);
 }
 
-void Pathfinder::addRightSensor( std::unique_ptr<ProximitySensor> &&s)
+void Pathfinder::addRightSensor( std::unique_ptr<IProximitySensor> &&s)
 {
 	_sr = std::move(s);
 }
@@ -92,7 +88,7 @@ void Pathfinder::setStatus(PFStatus *newStatus)
 {
 	std::lock_guard<std::mutex> statusLock(_statusMutex);
 	_status->end();
-	std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ));
+	std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ));
 	_status.reset(newStatus);
 	_status->begin();
 }

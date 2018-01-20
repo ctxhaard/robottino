@@ -1,24 +1,22 @@
-#include "ProximitySensor.h"
-#include <fstream>
+#include "ProximitySensorSim.h"
 #include <iostream>
+#include <cstdlib>
 
 namespace ct
 {
-ProximitySensor::ProximitySensor(std::string devPath)
-	: _devPath(devPath), _mm{-1}, _newMeas{false}
+ProximitySensorSim::ProximitySensorSim()
+	: _mm{-1}, _newMeas{false}
 {
 	
 }
 
-std::future<int> ProximitySensor::acquire(std::function<void(int)> callback)
+std::future<int> ProximitySensorSim::acquire(std::function<void(int)> callback)
 {
 	auto result = std::async(std::launch::async,[this,callback]() -> int {
 				std::cout << "proximity async lambda" << std::endl;
-				std::ifstream is(_devPath);
-				while (is.is_open()) {
+				while (true) {
 					//std::cout << "proximity read ";
-					int mm;
-					is >> mm;
+					int mm = rand() % 1000;
 					setMm(mm);
 					//std::cout << mm << std::endl;
 					callback(mm);
@@ -28,17 +26,17 @@ std::future<int> ProximitySensor::acquire(std::function<void(int)> callback)
 	return result;
 }
 
-int ProximitySensor::getMm() {
+int ProximitySensorSim::getMm() {
 	_newMeas = false;
 	return _mm;
 }
 
-void ProximitySensor::setMm(int mm) {
+void ProximitySensorSim::setMm(int mm) {
 	_mm = mm;
 	_newMeas = true;
 }
 
-bool ProximitySensor::hasNewMeas() const
+bool ProximitySensorSim::hasNewMeas() const
 {
 	return _newMeas;
 }

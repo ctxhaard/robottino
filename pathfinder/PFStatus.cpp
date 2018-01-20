@@ -32,12 +32,12 @@ void PFStatus::onRightSensor(Pathfinder& self, int mm)
 
 }
 
-MotorController& PFStatus::getMotorLeft() const 
+IMotorController& PFStatus::getMotorLeft() const 
 {
 	return *_self._ml.get();
 }
 
-MotorController& PFStatus::getMotorRight() const
+IMotorController& PFStatus::getMotorRight() const
 {
 	return *_self._mr.get();
 }
@@ -57,18 +57,18 @@ std::mutex& PFStatus::getStatusMutex()
 	return _self._statusMutex;
 }
 
-ProximitySensor& PFStatus::getSensorLeft() const
+IProximitySensor& PFStatus::getSensorLeft() const
 {
 	return *_self._sl.get();
 }
 
-ProximitySensor& PFStatus::getSensorRight() const
+IProximitySensor& PFStatus::getSensorRight() const
 {
 	return *_self._sr.get();
 
 }
 
-ProximitySensor& PFStatus::getSensorFront() const
+IProximitySensor& PFStatus::getSensorFront() const
 {
 	return *_self._sf.get();
 }

@@ -4,6 +4,13 @@
 #include <fstream>
 
 namespace ct {
+class IMotorController {
+
+public:
+	virtual	void roll() = 0;
+	virtual	void forward(int power) = 0;
+	virtual	void back(int power) = 0;
+};
 
 class Exception : public std::exception {};
 class GpioInitException : public Exception {};
@@ -11,7 +18,7 @@ class PwmInitExportException : public Exception {};
 class PwmInitiEnableException : public Exception {};
 class PwmInitPeriodException : public Exception {};
 
-class MotorController {
+class MotorController : public IMotorController{
 
 public:
 	MotorController(int nPwm, int enaPin, int dirPin);

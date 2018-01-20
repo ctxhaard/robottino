@@ -1,7 +1,7 @@
 
 #include "Pathfinder.h"
-#include "MotorController.h"
-#include "ProximitySensor.h"
+#include "MotorControllerSim.h"
+#include "ProximitySensorSim.h"
 #include <memory>
 
 using namespace ct;
@@ -9,11 +9,11 @@ using namespace ct;
 Pathfinder *g_pathfinder;
 
 int main(int argc, const char *argv[]) {
-	auto sensorRight = std::make_unique<ProximitySensor>("/dev/proximity2");
-	auto sensorFront = std::make_unique<ProximitySensor>("/dev/proximity1");
-	auto sensorLeft = std::make_unique<ProximitySensor>("/dev/proximity0");
-	auto motorLeft = std::make_unique<MotorController>(0, 22, 24); 
-	auto motorRight = std::make_unique<MotorController>(1, 23, 25);
+	auto sensorRight = std::make_unique<ProximitySensorSim>();
+	auto sensorFront = std::make_unique<ProximitySensorSim>();
+	auto sensorLeft = std::make_unique<ProximitySensorSim>();
+	auto motorLeft = std::make_unique<MotorControllerSim>(); 
+	auto motorRight = std::make_unique<MotorControllerSim>();
 	auto pathfinder = std::make_unique<Pathfinder>(std::move(motorLeft), std::move(motorRight), std::move(sensorFront));
 
 	g_pathfinder = pathfinder.get();
