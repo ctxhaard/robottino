@@ -3,10 +3,18 @@
 #include "MotorController.h"
 #include "ProximitySensor.h"
 #include <memory>
+#include <signal.h>
+#include <iostream>
 
 using namespace ct;
 
 Pathfinder *g_pathfinder;
+
+void handle_signal(int signal)
+{
+	g_pathfinder->stop();
+	std::cout << "RECEIVED SIGNAL: " << signal << std::endl;
+}
 
 int main(int argc, const char *argv[]) {
 	auto sensorRight = std::make_unique<ProximitySensor>("/dev/proximity2");
@@ -17,6 +25,7 @@ int main(int argc, const char *argv[]) {
 	auto pathfinder = std::make_unique<Pathfinder>(std::move(motorLeft), std::move(motorRight), std::move(sensorFront));
 
 	g_pathfinder = pathfinder.get();
+	signal(SIGINT, handle_signal);
 
 	pathfinder->addLeftSensor(std::move(sensorLeft));
 	pathfinder->addRightSensor(std::move(sensorRight));

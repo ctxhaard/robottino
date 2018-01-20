@@ -155,6 +155,12 @@ void PFStatusForward::begin()
 	getMotorRight().forward(10);
 }
 
+void PFStatusForward::end()
+{
+	getMotorLeft().forward(0);
+	getMotorRight().forward(0);
+}
+
 void PFStatusForward::onFrontSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onFrontSensor(self, mm);
@@ -196,6 +202,12 @@ void PFStatusBack::begin()
 {
 	getMotorLeft().back(10);
 	getMotorRight().back(10);
+}
+
+void PFStatusBack::end()
+{
+	getMotorLeft().forward(0);
+	getMotorRight().forward(0);
 }
 
 void PFStatusBack::onFrontSensor(Pathfinder& self, int mm)

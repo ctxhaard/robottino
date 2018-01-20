@@ -55,6 +55,7 @@ class PFStatusForward: public PFStatus
 public:
 	PFStatusForward(Pathfinder &p);
 	void begin() override;
+	void end() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;
@@ -66,6 +67,7 @@ class PFStatusBack: public PFStatus
 public:
 	PFStatusBack(Pathfinder &p);
 	void begin() override;
+	void end() override;
 	void onFrontSensor(Pathfinder& self, int mm) override;
 	void onLeftSensor(Pathfinder& self, int mm) override;
 	void onRightSensor(Pathfinder& self, int mm) override;

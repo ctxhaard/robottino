@@ -21,6 +21,7 @@ Pathfinder::Pathfinder(std::unique_ptr<IMotorController> &&leftMotor, std::uniqu
 	, _mr{ std::move(rightMotor) }
 	, _sf{ std::move(frontSensor) }
 	, _display{ "/dev/lcd0" }
+	, _stopRequested{false}
 {
 	// NOTE: devo usare una move() perché una r-value reference è un lvalue (così ho trovato scritto...)
 }
@@ -28,6 +29,7 @@ Pathfinder::Pathfinder(std::unique_ptr<IMotorController> &&leftMotor, std::uniqu
 int Pathfinder::run() {
 	std::mutex loopMutex;
 	loopMutex.lock();
+	_stopRequested = false;
 	_status = std::make_unique<PFStatusRolling>(*this); 
 	auto fs = _sf->acquire([this, &loopMutex](int mm) {
 				loopMutex.unlock();
@@ -50,7 +52,7 @@ int Pathfinder::run() {
 				_display << std::right << std::setw(5) << std::setfill('.') << (mm / 10);
 			});
 
-	while(true) {
+	while(!_stopRequested) {
 		{
 			std::lock_guard<std::mutex> lock(loopMutex);
 		}
@@ -65,13 +67,23 @@ int Pathfinder::run() {
 		}
 	};
 
+	_ml->roll();
+	_mr->roll();
+	_sf->stop();
+	_sl->stop();
+	_sr->stop();
+
 	fs.get();
 	ls.get();
 	rs.get();
 
-	_ml->roll();
-	_mr->roll();
 	return 0;
+}
+
+void Pathfinder::stop()
+{
+	_stopRequested = true;
+	std::cout << "PATHFINDER GOT A STOP REQUEST\n";
 }
 
 void Pathfinder::addLeftSensor( std::unique_ptr<IProximitySensor> &&s)

@@ -45,7 +45,7 @@ test: $(TARGET)
 	
 .PHONY: clean
 clean:
-	rm -f $(OBJS) main.o $(TARGET) pathfinder-test
+	rm -f *.o $(TARGET) pathfinder-test
 	
 # loads the command on the remote target
 .PHONY: load	
