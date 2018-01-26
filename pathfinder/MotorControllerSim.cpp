@@ -23,6 +23,11 @@ void MotorControllerSim::roll()
 	std::cout << "roll" << std::endl;
 }
 
+void MotorControllerSim::brake()
+{
+	std::cout << "brake" << std::endl;
+}
+
 void MotorControllerSim::forward(int power)
 {
 	std::cout << "forward " << power << std::endl;

@@ -12,6 +12,7 @@ public:
 	std::future<int> acquire(std::function<void(int)>) override;
 	int getMm() override;
 	bool hasNewMeas() const override;
+	bool isNotDecreasing() const override;
 private:
 	void setMm(int mm);
 	int _mm;

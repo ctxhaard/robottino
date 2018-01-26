@@ -2,6 +2,7 @@
 
 #include <string>
 #include <future>
+#include <queue>
 
 namespace ct {
 class IProximitySensor
@@ -11,6 +12,7 @@ public:
 	virtual void stop() = 0;
 	virtual	int getMm() = 0;
 	virtual	bool hasNewMeas() const = 0;
+	virtual bool isNotDecreasing() const = 0;
 };
 
 class ProximitySensor : public IProximitySensor
@@ -21,12 +23,13 @@ public:
 	std::future<int> acquire(std::function<void(int)>) override;
 	void stop() override;
 	int getMm() override;
+	void setMm(int mm); // public because of testing
 	bool hasNewMeas() const override;
+	bool isNotDecreasing() const override;
 private:
-	void setMm(int mm);
 
 	std::string _devPath;
-	int _mm;
+	std::queue<int> _mm;
 	bool _newMeas;
 	bool _stopRequested;
 };

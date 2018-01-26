@@ -2,11 +2,13 @@
 #include <fstream>
 #include <iostream>
 
+#define FIFO_COUNT (10)
+
 namespace ct
 {
 ProximitySensor::ProximitySensor(std::string devPath)
 	: _devPath(devPath)
-	, _mm{-1}
+//	, _mm{-1}
 	, _newMeas{false}
 	, _stopRequested{false}
 {
@@ -39,12 +41,17 @@ void ProximitySensor::stop()
 }
 
 int ProximitySensor::getMm() {
+	int mm = -1;
+	if (!_mm.empty()) mm = _mm.back();
 	_newMeas = false;
-	return _mm;
+	return mm;
 }
 
 void ProximitySensor::setMm(int mm) {
-	_mm = mm;
+	if (_mm.size() >= FIFO_COUNT) {
+		_mm.pop();
+	}
+	_mm.push(mm);
 	_newMeas = true;
 }
 
@@ -52,4 +59,21 @@ bool ProximitySensor::hasNewMeas() const
 {
 	return _newMeas;
 }
+
+bool ProximitySensor::isNotDecreasing() const
+{
+	if (_mm.size() <= 2) return false;
+	// TODO: implement
+	// archiviare gli ultimi 5 valori in una fifo
+	// tornare true se il valore corrente e' >= alla media
+	int avg = 0;
+	std::queue<int> copy = _mm;
+	while (!copy.empty()) {
+		avg += copy.back();
+		copy.pop();
+	}	
+	avg = avg / _mm.size();
+	return (_mm.back() >= avg);
+}
+
 } // namespace ct

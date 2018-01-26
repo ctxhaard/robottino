@@ -40,4 +40,10 @@ bool ProximitySensorSim::hasNewMeas() const
 {
 	return _newMeas;
 }
+
+bool ProximitySensor::isNotDecreasing() const
+{
+	// TODO: implement
+	return false;
+}
 } // namespace ct

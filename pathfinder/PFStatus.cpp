@@ -157,8 +157,8 @@ void PFStatusForward::begin()
 
 void PFStatusForward::end()
 {
-	getMotorLeft().forward(0);
-	getMotorRight().forward(0);
+	getMotorLeft().brake();
+	getMotorRight().brake();
 }
 
 void PFStatusForward::onFrontSensor(Pathfinder& self, int mm)
@@ -200,14 +200,14 @@ PFStatusBack::PFStatusBack(Pathfinder &p)
 
 void PFStatusBack::begin()
 {
-	getMotorLeft().back(10);
-	getMotorRight().back(10);
+	getMotorLeft().back(5);
+	getMotorRight().back(5);
 }
 
 void PFStatusBack::end()
 {
-	getMotorLeft().forward(0);
-	getMotorRight().forward(0);
+	getMotorLeft().brake();
+	getMotorRight().brake();
 }
 
 void PFStatusBack::onFrontSensor(Pathfinder& self, int mm)
@@ -243,8 +243,8 @@ PFStatusRotateLeft::PFStatusRotateLeft(Pathfinder &p)
 
 void PFStatusRotateLeft::begin()
 {
-	getMotorLeft().back(10);
-	getMotorRight().forward(10);
+	getMotorLeft().back(5);
+	getMotorRight().forward(5);
 }
 
 void PFStatusRotateLeft::onFrontSensor(Pathfinder& self, int mm)
@@ -258,13 +258,10 @@ void PFStatusRotateLeft::onFrontSensor(Pathfinder& self, int mm)
 void PFStatusRotateLeft::onLeftSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onLeftSensor(self, mm);
-// TODO: implement
-
 }
 
 void PFStatusRotateLeft::onRightSensor(Pathfinder& self, int mm)
 {
-// TODO: implement
 	PFStatus::onRightSensor(self, mm);
 }
 
@@ -278,8 +275,8 @@ PFStatusRotateRight::PFStatusRotateRight(Pathfinder &p)
 
 void PFStatusRotateRight::begin()
 {
-	getMotorLeft().forward(10);
-	getMotorRight().back(10);
+	getMotorLeft().forward(5);
+	getMotorRight().back(5);
 }
 
 void PFStatusRotateRight::onFrontSensor(Pathfinder& self, int mm)
@@ -293,13 +290,11 @@ void PFStatusRotateRight::onFrontSensor(Pathfinder& self, int mm)
 void PFStatusRotateRight::onLeftSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onLeftSensor(self, mm);
-// TODO: implement
 }
 
 void PFStatusRotateRight::onRightSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onRightSensor(self, mm);
-// TODO: implement
 }
 // ---------------------------------------------------------------------------
 // 
@@ -318,20 +313,19 @@ void PFStatusTurnLeft::begin()
 void PFStatusTurnLeft::onFrontSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onFrontSensor(self, mm);	
-	if (mm >= FRONT_MM_OK) {
+	if (mm >= FRONT_MM_OK 
+		&& (getSensorRight().isNotDecreasing() || getSensorRight().getMm() >= LATERAL_MM_GOOD)) {
 		setStatus(new PFStatusForward(self));
 	}
 }
 
 void PFStatusTurnLeft::onLeftSensor(Pathfinder& self, int mm)
 {
-// TODO: implement
 	PFStatus::onLeftSensor(self, mm);
 }
 
 void PFStatusTurnLeft::onRightSensor(Pathfinder& self, int mm)
 {
-// TODO: implement
 	PFStatus::onRightSensor(self, mm);
 }
 // ---------------------------------------------------------------------------
@@ -351,7 +345,8 @@ void PFStatusTurnRight::begin()
 void PFStatusTurnRight::onFrontSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onFrontSensor(self, mm);	
-	if (mm >= FRONT_MM_OK) {
+	if (mm >= FRONT_MM_OK 
+		&& (getSensorLeft().isNotDecreasing() || getSensorLeft().getMm() >= LATERAL_MM_GOOD)) {
 		setStatus(new PFStatusForward(self));
 	}
 }

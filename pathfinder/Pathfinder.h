@@ -5,10 +5,11 @@
 #include <mutex>
 #include "PFStatus.h"
 
-#define FRONT_MM_MIN   (300)
-#define FRONT_MM_ALERT (350)
-#define FRONT_MM_OK    (400)
-#define LATERAL_MM_MIN (150)
+#define FRONT_MM_MIN    (300)
+#define FRONT_MM_ALERT  (350)
+#define FRONT_MM_OK     (400)
+#define LATERAL_MM_MIN  (150)
+#define LATERAL_MM_GOOD (300)
 
 namespace ct {
 

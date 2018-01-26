@@ -5,6 +5,7 @@
 
 #define BASE_GPIO (458)
 #define PWM_PERIOD_NS (500000)
+#define PWM_DUTYCYCLE_MIN_NS (250000)
 #define POWER_MAX (10)
 
 namespace ct
@@ -34,15 +35,25 @@ void MotorController::roll()
 	enaStream << "0";
 }
 
+void MotorController::brake()
+{
+	std::cout << "brake" << std::endl;
+	std::ofstream pwmStream{ _pwmDutyPath };
+	std::ofstream enaStream{ _enaPath };
+	std::ofstream dirStream{ _dirPath };
+	dirStream << "0";
+	pwmStream << "0";
+	enaStream << "1";
+}
+
 void MotorController::forward(int power)
 {
 	std::cout << "forward " << power << std::endl;
 	std::ofstream pwmStream{ _pwmDutyPath };
 	std::ofstream enaStream{ _enaPath };
 	std::ofstream dirStream{ _dirPath };
-	power = (power > POWER_MAX ? POWER_MAX : power);
 	dirStream << "0";
-	pwmStream << (power * PWM_PERIOD_NS / POWER_MAX);
+	pwmStream << power2pwm(power);
 	enaStream << "1";
 }
 
@@ -52,9 +63,8 @@ void MotorController::back(int power)
 	std::ofstream pwmStream{ _pwmDutyPath };
 	std::ofstream enaStream{ _enaPath };
 	std::ofstream dirStream{ _dirPath };
-	power = (power > POWER_MAX ? POWER_MAX : power);
 	dirStream << "1";
-	pwmStream << (power * PWM_PERIOD_NS / POWER_MAX);
+	pwmStream << power2pwm(power);
 	enaStream << "1";
 }
 std::string MotorController::initPwm(int nPwm) const
@@ -124,5 +134,11 @@ void MotorController::deinitGpio(int gpioPin) const
 	if (!outf.is_open()) { return; }
 	outf << (BASE_GPIO + gpioPin);
 	outf.close();
+}
+
+int MotorController::power2pwm(int power) const
+{
+	power = (power > POWER_MAX ? POWER_MAX : power);
+	return (PWM_DUTYCYCLE_MIN_NS + (power * (PWM_PERIOD_NS - PWM_DUTYCYCLE_MIN_NS) / POWER_MAX));
 }
 } // namespace ct

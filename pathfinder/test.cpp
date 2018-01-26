@@ -1,31 +1,50 @@
-/*
- * test.cpp
- *
- *  Created on: Oct 18, 2016
- *      Author: ctomasin
- */
+#include <gtest/gtest.h>
+#include "ProximitySensor.h"
 
-#define BOOST_TEST_MODULE pathfindertest
-#include <boost/test/unit_test.hpp>
-
-#include "Pathfinder.h"
-
-BOOST_AUTO_TEST_SUITE (pathfindertest)
-
-BOOST_AUTO_TEST_CASE(test1)
+struct ProximitySensorTest : public testing::Test
 {
-	ct::Pathfinder p;
-	char buffer[] = "1250";
-	p.formatData(buffer,buffer,sizeof(buffer));
-	BOOST_TEST_CHECK(0 == strcmp(buffer,"125 "));
+	ct::ProximitySensor sensor { "" };
+
+	void SetUp() {
+
+	}
+
+	void TearDown()
+	{
+
+	}
+};
+
+TEST_F(ProximitySensorTest, ReturnNoIfEmpty) 
+{
+	ASSERT_FALSE(sensor.isNotDecreasing());	
 }
 
-BOOST_AUTO_TEST_CASE(test2)
+TEST_F(ProximitySensorTest, ReturnNoIfNotEnoughValues) 
 {
-	ct::Pathfinder p;
-	char buffer[] = "90";
-	p.formatData(buffer,buffer,sizeof(buffer));
-	BOOST_TEST_CHECK(0 == strcmp(buffer,"  9*"));
+	sensor.setMm(10);
+	sensor.setMm(100);
+	ASSERT_FALSE(sensor.isNotDecreasing());	
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+TEST_F(ProximitySensorTest, IncreasingIsRecognized) 
+{
+	sensor.setMm(10);
+	sensor.setMm(9);
+	sensor.setMm(8);
+	sensor.setMm(8);
+	sensor.setMm(8);
+	sensor.setMm(9);
+	ASSERT_TRUE(sensor.isNotDecreasing());	
+}
+
+TEST_F(ProximitySensorTest, IncreasingIsRecognized2) 
+{
+	sensor.setMm(10);
+	sensor.setMm(9);
+	sensor.setMm(8);
+	sensor.setMm(8);
+	sensor.setMm(10);
+	sensor.setMm(9);
+	ASSERT_TRUE(sensor.isNotDecreasing());	
+}

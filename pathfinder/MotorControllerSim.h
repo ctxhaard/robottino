@@ -11,6 +11,7 @@ public:
 	virtual ~MotorControllerSim();
 
 	void roll() override;
+	void brake() override;
 	void forward(int power) override;
 	void back(int power) override;
 };
