@@ -117,11 +117,14 @@ void PFStatusRolling::onFrontSensor(Pathfinder& self, int mm)
 		setStatus(new PFStatusBack(self));
 	} else if (mm < FRONT_MM_ALERT) {
 		if(getSensorLeft().getMm() > getSensorRight().getMm()) {
+			std::cout << __func__ << std::endl;
 			setStatus(new PFStatusRotateLeft(self));
 		} else {
+			std::cout << __func__ << std::endl;
 			setStatus(new PFStatusRotateRight(self));
 		}
 	} else {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusForward(self));	
 	}
 }
@@ -130,6 +133,7 @@ void PFStatusRolling::onLeftSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onLeftSensor(self, mm);
 	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= 0) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusTurnRight(self));
 	}
 }
@@ -138,6 +142,7 @@ void PFStatusRolling::onRightSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onRightSensor(self, mm);
 	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= 0) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusTurnLeft(self));
 	}
 }
@@ -165,11 +170,14 @@ void PFStatusForward::onFrontSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onFrontSensor(self, mm);
 	if (mm < FRONT_MM_MIN) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusBack(self));
 	} else if (mm < FRONT_MM_ALERT) {
 		if(getSensorLeft().getMm() > getSensorRight().getMm()) {
+			std::cout << __func__ << std::endl;
 			setStatus(new PFStatusRotateLeft(self));
 		} else {
+			std::cout << __func__ << std::endl;
 			setStatus(new PFStatusRotateRight(self));
 		}
 	}
@@ -179,6 +187,7 @@ void PFStatusForward::onLeftSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onLeftSensor(self, mm);
 	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= 0) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusTurnRight(self));
 	}
 }
@@ -187,6 +196,7 @@ void PFStatusForward::onRightSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onRightSensor(self, mm);
 	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= 0) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusTurnLeft(self));
 	}
 }
@@ -214,6 +224,7 @@ void PFStatusBack::onFrontSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onFrontSensor(self, mm);
 	if (mm >= FRONT_MM_ALERT) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusRolling(self));
 	} 
 }
@@ -222,6 +233,7 @@ void PFStatusBack::onLeftSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onLeftSensor(self, mm);
 	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= 0) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusRotateRight(self));
 	}
 }
@@ -230,6 +242,7 @@ void PFStatusBack::onRightSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onRightSensor(self, mm);
 	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= 0) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusRotateLeft(self));
 	}
 }
@@ -251,6 +264,7 @@ void PFStatusRotateLeft::onFrontSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onFrontSensor(self, mm);	
 	if (mm >= FRONT_MM_OK) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusForward(self));
 	}
 }
@@ -283,6 +297,7 @@ void PFStatusRotateRight::onFrontSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onFrontSensor(self, mm);	
 	if (mm >= FRONT_MM_OK) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusForward(self));
 	}
 }
@@ -315,6 +330,7 @@ void PFStatusTurnLeft::onFrontSensor(Pathfinder& self, int mm)
 	PFStatus::onFrontSensor(self, mm);	
 	if (mm >= FRONT_MM_OK 
 		&& (getSensorRight().isNotDecreasing() || getSensorRight().getMm() >= LATERAL_MM_GOOD)) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusForward(self));
 	}
 }
@@ -347,18 +363,19 @@ void PFStatusTurnRight::onFrontSensor(Pathfinder& self, int mm)
 	PFStatus::onFrontSensor(self, mm);	
 	if (mm >= FRONT_MM_OK 
 		&& (getSensorLeft().isNotDecreasing() || getSensorLeft().getMm() >= LATERAL_MM_GOOD)) {
+		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusForward(self));
 	}
 }
 
 void PFStatusTurnRight::onLeftSensor(Pathfinder& self, int mm)
 {
-// TODO: implement
+	PFStatus::onLeftSensor(self, mm);
 
 }
 
 void PFStatusTurnRight::onRightSensor(Pathfinder& self, int mm)
 {
-// TODO: implement
+	PFStatus::onRightSensor(self, mm);
 }
 } // namespace ct

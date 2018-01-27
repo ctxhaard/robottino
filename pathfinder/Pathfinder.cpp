@@ -13,6 +13,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <condition_variable>
 
 namespace ct {
 
@@ -27,26 +28,40 @@ Pathfinder::Pathfinder(std::unique_ptr<IMotorController> &&leftMotor, std::uniqu
 }
 
 int Pathfinder::run() {
-	std::mutex loopMutex;
-	loopMutex.lock();
+	std::mutex m;
+	std::condition_variable cv;
+	bool ready = false;
+
 	_stopRequested = false;
 	_status = std::make_unique<PFStatusRolling>(*this); 
-	auto fs = _sf->acquire([this, &loopMutex](int mm) {
-				loopMutex.unlock();
+	auto fs = _sf->acquire([&](int mm) {
+				{
+					std::unique_lock<std::mutex> lk(m);
+					ready = true;
+				}
+				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16 + 5);
 				_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
 			});
 
-	auto ls = _sl->acquire([this, &loopMutex](int mm) {
-				loopMutex.unlock();
+	auto ls = _sl->acquire([&](int mm) {
+				{
+					std::unique_lock<std::mutex> lk(m);
+					ready = true;
+				}
+				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16);
 				_display << std::left << std::setw(5) << std::setfill('.') << (mm / 10);
 			});
 
-	auto rs = _sr->acquire([this, &loopMutex](int mm) {
-				loopMutex.unlock();
+	auto rs = _sr->acquire([&](int mm) {
+				{
+					std::unique_lock<std::mutex> lk(m);
+					ready = true;
+				}
+				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16 + 10);
 				_display << std::right << std::setw(5) << std::setfill('.') << (mm / 10);
@@ -54,8 +69,14 @@ int Pathfinder::run() {
 
 	while(!_stopRequested) {
 		{
-			std::lock_guard<std::mutex> lock(loopMutex);
+			std::unique_lock<std::mutex> lk(m);
+			cv.wait(lk, [&ready]{ return ready; });
+			ready = false;
 		}
+		std::cout << std::setw(6)
+			<< _sl->getMm() << "|" 
+			<< _sf->getMm() << "|"
+		        << _sr->getMm() << std::endl;
 		if (_sf->hasNewMeas()) {
 			_status->onFrontSensor(*this, _sf->getMm());
 		}

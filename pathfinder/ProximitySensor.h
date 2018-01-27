@@ -2,7 +2,8 @@
 
 #include <string>
 #include <future>
-#include <queue>
+#include <deque>
+#include <mutex>
 
 namespace ct {
 class IProximitySensor
@@ -29,8 +30,9 @@ public:
 private:
 
 	std::string _devPath;
-	std::queue<int> _mm;
+	std::deque<int> _mm;
 	bool _newMeas;
 	bool _stopRequested;
+	mutable std::mutex _mutex;
 };
 } // namespace ct
