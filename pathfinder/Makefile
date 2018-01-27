@@ -23,7 +23,12 @@ LIBS += -lgtest -lgtest_main
 OBJS += test.o
 TARGET := test
 else
+ifeq ($(MAKECMDGOALS),sim)
+OBJS += MotorControllerSim.o ProximitySensorSim.o main_sim.o
+TARGET := sim
+else
 OBJS += main.o
+endif
 endif
 LIBS += -lpthread
 
@@ -40,7 +45,7 @@ all: $(TARGET)
 	
 .PHONY: clean
 clean:
-	rm -f *.o $(TARGET) pathfinder-test
+	rm -f *.o $(TARGET) test sim
 	
 .PHONY: load	
 load:

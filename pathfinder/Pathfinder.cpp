@@ -39,6 +39,7 @@ int Pathfinder::run() {
 					std::unique_lock<std::mutex> lk(m);
 					ready = true;
 				}
+				std::cout << "notify" << std::endl;
 				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16 + 5);
@@ -50,6 +51,7 @@ int Pathfinder::run() {
 					std::unique_lock<std::mutex> lk(m);
 					ready = true;
 				}
+				std::cout << "notify" << std::endl;
 				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16);
@@ -61,6 +63,7 @@ int Pathfinder::run() {
 					std::unique_lock<std::mutex> lk(m);
 					ready = true;
 				}
+				std::cout << "notify" << std::endl;
 				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16 + 10);
@@ -121,7 +124,7 @@ void Pathfinder::setStatus(PFStatus *newStatus)
 {
 	std::lock_guard<std::mutex> statusLock(_statusMutex);
 	_status->end();
-	std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ));
+	std::this_thread::sleep_for( std::chrono::milliseconds( 500 ));
 	_status.reset(newStatus);
 	_status->begin();
 }

@@ -10,6 +10,7 @@ public:
 	ProximitySensorSim();
 
 	std::future<int> acquire(std::function<void(int)>) override;
+	void stop() override;
 	int getMm() override;
 	bool hasNewMeas() const override;
 	bool isNotDecreasing() const override;
