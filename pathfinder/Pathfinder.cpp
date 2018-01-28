@@ -39,7 +39,7 @@ int Pathfinder::run() {
 					std::unique_lock<std::mutex> lk(m);
 					ready = true;
 				}
-				std::cout << "notify" << std::endl;
+				//std::cout << "notify" << std::endl;
 				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16 + 5);
@@ -51,7 +51,7 @@ int Pathfinder::run() {
 					std::unique_lock<std::mutex> lk(m);
 					ready = true;
 				}
-				std::cout << "notify" << std::endl;
+				//std::cout << "notify" << std::endl;
 				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16);
@@ -63,7 +63,7 @@ int Pathfinder::run() {
 					std::unique_lock<std::mutex> lk(m);
 					ready = true;
 				}
-				std::cout << "notify" << std::endl;
+				//std::cout << "notify" << std::endl;
 				cv.notify_one();	
 				std::lock_guard<std::mutex> lock(_displayMutex);
 				_display.seekp(16 + 10);
@@ -76,10 +76,9 @@ int Pathfinder::run() {
 			cv.wait(lk, [&ready]{ return ready; });
 			ready = false;
 		}
-		std::cout << std::setw(6)
-			<< _sl->getMm() << "|" 
-			<< _sf->getMm() << "|"
-		        << _sr->getMm() << std::endl;
+//		std::cout << std::setw(6) << _sl->getMm() << "|"
+//				<< std::setw(6) << _sf->getMm() << "|"
+//				<< std::setw(6) << _sr->getMm() << std::endl;
 		if (_sf->hasNewMeas()) {
 			_status->onFrontSensor(*this, _sf->getMm());
 		}

@@ -132,7 +132,7 @@ void PFStatusRolling::onFrontSensor(Pathfinder& self, int mm)
 void PFStatusRolling::onLeftSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onLeftSensor(self, mm);
-	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= 0) {
+	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= FRONT_MM_ALERT) {
 		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusTurnRight(self));
 	}
@@ -141,7 +141,7 @@ void PFStatusRolling::onLeftSensor(Pathfinder& self, int mm)
 void PFStatusRolling::onRightSensor(Pathfinder& self, int mm)
 {
 	PFStatus::onRightSensor(self, mm);
-	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= 0) {
+	if (mm < LATERAL_MM_MIN && getSensorFront().getMm() >= FRONT_MM_ALERT) {
 		std::cout << __func__ << std::endl;
 		setStatus(new PFStatusTurnLeft(self));
 	}
