@@ -1,1 +1,0 @@
-SUBSYSTEM=="proximity", MODE="0666", GROUP="plugdev"

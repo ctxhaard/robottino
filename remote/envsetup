@@ -1,8 +1,0 @@
-#!/bin/bash
-
-#export TARGET=robottino
-export TARGET=$(nslookup robottino-wifi | tail -2 | head -1 | awk '{print $2}')
-export PORT=1234
-export PORT_VID=1235
-
-echo "TARGET: $TARGET"
