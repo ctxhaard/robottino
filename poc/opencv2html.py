@@ -28,6 +28,27 @@ def video_feed():
    print(f'encoding: {rsp.stream.encoding}')
    return rsp
 
+@web_app.route('/video_feed2')
+def video_feed2():
+   rsp = flask.Response(gen_frames(),
+                         mimetype='multipart/x-mixed-replace; boundary=frame')
+   print(f'encoding: {rsp.stream.encoding}')
+   return rsp
+
+@web_app.route('/video_feed3')
+def video_feed3():
+   rsp = flask.Response(gen_frames(),
+                         mimetype='multipart/x-mixed-replace; boundary=frame')
+   print(f'encoding: {rsp.stream.encoding}')
+   return rsp
+
+@web_app.route('/video_feed4')
+def video_feed4():
+   rsp = flask.Response(gen_frames(),
+                         mimetype='multipart/x-mixed-replace; boundary=frame')
+   print(f'encoding: {rsp.stream.encoding}')
+   return rsp
+
 if __name__ == '__main__':
    web_app.run(debug=False, host='0.0.0.0')
 

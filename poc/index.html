@@ -8,4 +8,26 @@
     <img src="{{ url_for('video_feed3') }}" width="40%">
     <img src="{{ url_for('video_feed4') }}" width="40%">  
   </div>
+  <script>
+    let gamepad_index
+
+    function gameLoop() {
+      let gp = navigator.getGamepads()[gamepad_index]
+      if (gp.axes.some(e => e != 0.0)) {
+        let lx = gp.axes[0]
+        let ly = gp.axes[1]
+        let rx = gp.axes[2]
+        let ry = gp.axes[3]
+        console.log(`left: x:${lx} y: ${ly} - right: x: ${rx} y: ${ry}`)
+      }
+      
+      let start = requestAnimationFrame(gameLoop)
+    }
+
+    window.addEventListener("gamepadconnected", function(e) {
+      console.log(`!Gamepad connected at index: ${e.gamepad.index}: ${e.gamepad.id} with ${e.gamepad.buttons.length} buttons and ${e.gamepad.axes.some(e => e != 0.0).lengtih} axes.some(e => e != 0.0)`)
+      gamepad_index = e.gamepad.index
+      gameLoop()
+    })
+  </script>
 </body>
